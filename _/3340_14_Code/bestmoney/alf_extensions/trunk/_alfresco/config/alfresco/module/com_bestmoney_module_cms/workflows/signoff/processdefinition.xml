@@ -1,0 +1,270 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition  xmlns="urn:jbpm.org:jpdl-3.2" name="bmw:signoffProcess">
+
+    <!--
+         Assignees
+         -->
+
+    <swimlane name="jobOwner">
+        <assignment class="org.alfresco.repo.workflow.jbpm.AlfrescoAssignment">
+            <actor>#{jobOwner}</actor>
+        </assignment>
+    </swimlane>
+
+    <swimlane name="lev1Approver">
+        <assignment class="org.alfresco.repo.workflow.jbpm.AlfrescoAssignment">
+            <actor>#{bmw_assigneeApprover1Person}</actor>
+        </assignment>
+    </swimlane>
+
+    <swimlane name="lev2Approver">
+        <assignment class="org.alfresco.repo.workflow.jbpm.AlfrescoAssignment">
+            <actor>#{bmw_assigneeApprover2Person}</actor>
+        </assignment>
+    </swimlane>
+
+    <swimlane name="lev3Approver">
+        <assignment class="org.alfresco.repo.workflow.jbpm.AlfrescoAssignment">
+            <actor>#{bmw_assigneeApprover3Person}</actor>
+        </assignment>
+    </swimlane>
+
+    <!--
+    	Workflow starts
+    	-->
+
+    <start-state name="Start">
+        <!--
+            Node enter event does not work here, any variables you set are not created and set
+            -->
+        <transition to="SO01_Lev3SignOff"></transition>
+        <event type="node-leave">
+            <script>
+                <variable name="signedOff" access="write"/>
+                <!-- Set process id for parent process to use -->
+                <!-- Note. cannot use event "node-enter", it gives null id -->
+                <expression>
+                    signedOff = false;
+                    var procId = executionContext.processInstance.getId();
+                    executionContext.setVariable("procId", procId);
+                </expression>
+            </script>
+        </event>
+    </start-state>
+
+    <task-node name="SO01_Lev3SignOff">
+        <event type="node-enter">
+            <script>
+                <variable name="lev3Approved" access="write"/>
+                <expression>
+                    lev3Approved = false;
+                </expression>
+            </script>
+        </event>
+        <task name="bmw:SO01_Lev3SignOffTask" swimlane="lev3Approver">
+            <event type="task-create">
+                <script>
+                    <variable name="bmw_signOffPhase" access="read"/>
+                    <expression>
+                        taskInstance.description = "SO03-Sign-off Phase (" + bmw_signOffPhase + ")";
+                    </expression>
+                </script>
+            </event>
+        </task>
+        <transition to="isLev3Approved?" name="reject"></transition>
+        <transition to="isLev3Approved?" name="approve">
+            <script>
+                <variable name="lev3Approved" access="read,write"/>
+                <expression>
+                    lev3Approved = true;
+                </expression>
+            </script>
+        </transition>
+    </task-node>
+
+    <decision name="isLev3Approved?">
+        <description>
+            Note. The default transition "no" has to be first in this decision node
+            otherwise the condition will always evaluate to true.
+        </description>
+        <transition to="end" name="no"></transition>
+        <transition to="isLev2SignOff?" name="yes">
+            <condition>#{lev3Approved == true}</condition>
+        </transition>
+    </decision>
+
+    <decision name="isLev2SignOff?">
+        <description>
+            Note. The default transition "no" has to be first in this decision node otherwise the condition will
+            always evaluate to true.
+        </description>
+        <transition to="SO04_CheckSignoffComments" name="no"></transition>
+        <transition to="SO02_Lev2SignOff" name="yes">
+            <condition>#{signOffLevel == "LEV2" or signOffLevel == "LEV1"}</condition>
+        </transition>
+    </decision>
+
+    <task-node name="SO02_Lev2SignOff">
+        <event type="node-enter">
+            <script>
+                <variable name="cat2Approved" access="write"/>
+                <expression>
+                    cat2Approved = false;
+                </expression>
+            </script>
+        </event>
+        <task name="bmw:SO02_Lev2SignOffTask" swimlane="lev2Approver">
+            <event type="task-create">
+                <script>
+                    <variable name="bmw_signOffPhase" access="read"/>
+                    <expression>
+                        taskInstance.description = "SO02-Sign-off Phase (" + bmw_signOffPhase + ")";
+                    </expression>
+                </script>
+            </event>
+        </task>
+        <transition to="isLev2Approved?" name="reject"></transition>
+        <transition to="isLev2Approved?" name="approve">
+            <script>
+                <variable name="cat2Approved" access="read,write"/>
+                <expression>
+                    cat2Approved = true;
+                </expression>
+            </script>
+        </transition>
+    </task-node>
+
+    <decision name="isLev2Approved?">
+        <description>
+            Note. The default transition "no" has to be first in this decision node
+            otherwise the condition will always evaluate to true.
+        </description>
+        <transition to="SendReworkEmailToApprover" name="no">
+            <script>
+                <variable name="rejectPerson" access="write"/>
+                <variable name="sendRejectEmailToPerson" access="write"/>
+                <expression>
+                    rejectPerson = bmw_assigneeApprover2Person;
+                    sendRejectEmailToPerson = bmw_assigneeApprover3Person;
+                </expression>
+            </script>
+        </transition>
+        <transition to="isLev1SignOff?" name="yes">
+            <condition>#{cat2Approved == true}</condition>
+        </transition>
+    </decision>
+
+    <decision name="isLev1SignOff?">
+        <description>
+            Note. The default transition "no" has to be first in this decision node otherwise the condition will
+            always evaluate to true.
+        </description>
+        <transition to="SO04_CheckSignoffComments" name="no"></transition>
+        <transition to="SO03_Lev1SignOff" name="yes">
+            <condition>#{signOffLevel == "LEV1"}</condition>
+        </transition>
+    </decision>
+
+    <task-node name="SO03_Lev1SignOff">
+        <event type="node-enter">
+            <script>
+                <variable name="cat1Approved" access="write"/>
+                <expression>
+                    cat1Approved = false;
+                </expression>
+            </script>
+        </event>
+        <task name="bmw:SO03_Lev1SignOffTask" swimlane="lev1Approver">
+            <event type="task-create">
+                <script>
+                    <variable name="bmw_signOffPhase" access="read"/>
+                    <expression>
+                        taskInstance.description = "SO01-Sign-off Phase (" + bmw_signOffPhase + ")";
+                    </expression>
+                </script>
+            </event>
+        </task>
+        <transition to="isLev1Approved?" name="reject"></transition>
+        <transition to="isLev1Approved?" name="approve">
+            <script>
+                <variable name="cat1Approved" access="read,write"/>
+                <expression>
+                    cat1Approved = true;
+                </expression>
+            </script>
+        </transition>
+    </task-node>
+
+    <decision name="isLev1Approved?">
+        <description>
+            Note. The default transition "no" has to be first in this decision node
+            otherwise the condition will always evaluate to true.
+        </description>
+        <transition to="SendReworkEmailToApprover" name="no">
+            <script>
+                <variable name="rejectPerson" access="write"/>
+                <variable name="sendRejectEmailToPerson" access="write"/>
+                <expression>
+                    rejectPerson = bmw_assigneeApprover1Person;
+                    sendRejectEmailToPerson = bmw_assigneeApprover2Person;
+                </expression>
+            </script>
+        </transition>
+        <transition to="SO04_CheckSignoffComments" name="yes">
+            <condition>#{cat1Approved == true}</condition>
+        </transition>
+    </decision>
+
+    <task-node name="SO04_CheckSignoffComments">
+        <event type="node-enter">
+            <script>
+                <variable name="signedOff" access="write"/>
+                <expression>
+                    signedOff = true;
+                </expression>
+            </script>
+        </event>
+        <task name="bmw:SO04_CheckSignoffCommentsTask" swimlane="jobOwner">
+            <event type="task-create">
+                <script>
+                    <variable name="bmw_signOffPhase" access="read"/>
+                    <expression>
+                        taskInstance.description = "SO04-Check Sign-off (" + bmw_signOffPhase + ")";
+                    </expression>
+                </script>
+            </event>
+        </task>
+        <transition to="end"></transition>
+    </task-node>
+
+    <node name="SendReworkEmailToApprover">
+        <event type="node-enter">
+            <!-- It is important that the companyhome process variable is passed into the sign-off subprocess
+                from the parent job process, otherwise you get companyhome is undefined script error -->
+            <action class="org.alfresco.repo.workflow.jbpm.AlfrescoJavaScript">
+                <script>
+                    var template = companyhome.childByNamePath("Data Dictionary/Email Templates/Best Money/Marketing/signoff-rework-email.ftl");
+                    var args = [];
+                    args["signOffPhase"] = bmw_signOffPhase;
+                    args["campaignId"] = bmc_campaignId;
+                    args["rejectorPersonNodeRef"] = rejectPerson.nodeRef.toString();
+
+                    var txtMail = bpm_package.children[0].processTemplate(template, args);
+
+                    var mail = actions.create("mail");
+                    mail.parameters.to = sendRejectEmailToPerson.properties.email;
+                    mail.parameters.from = "alfresco@bestmoney.com";
+                    mail.parameters.subject = "The " + bmw_signOffPhase + " for the " + bmc_campaignId + " campaign has been rejected";
+                    mail.parameters.text = txtMail;
+                    mail.execute(bpm_package);
+                </script>
+            </action>
+        </event>
+        <transition to="end"></transition>
+    </node>
+
+    <end-state name="end"></end-state>
+
+
+</process-definition>

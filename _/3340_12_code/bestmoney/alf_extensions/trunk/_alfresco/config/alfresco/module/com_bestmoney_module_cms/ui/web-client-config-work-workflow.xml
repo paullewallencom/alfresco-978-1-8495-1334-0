@@ -1,0 +1,61 @@
+<alfresco-config>
+
+    <!--
+        Workflow property sheets for Generic Work Process
+        -->
+
+    <config evaluator="node-type" condition="bmw:W01_ProduceWorkTask">
+        <property-sheet>
+            <separator name="sep-1" display-label-id="jobWorkflowHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmw:jobStatus" display-label-id="jobStatus" read-only="true"/>
+            <show-property name="bmw:jobFolderLink" display-label-id="jobFolder" read-only="true" component-generator="CustomLinkGenerator"/>
+
+            <separator name="sep-2" display-label-id="workAndPriorityHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmw:workType" display-label-id="workType" read-only="true"/>
+            <show-property name="bpm:priority" display-label-id="workPriority"/>
+            <show-property name="bpm:dueDate" display-label-id="workDueDate"/>
+        </property-sheet>
+    </config>
+
+    <config evaluator="node-type" condition="bmw:W02_ValidateWorkTask">
+        <property-sheet>
+            <separator name="sep-1" display-label-id="jobWorkflowHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmw:jobStatus" display-label-id="jobStatus" read-only="true"/>
+            <show-property name="bmw:jobFolderLink" display-label-id="jobFolder" read-only="true" component-generator="CustomLinkGenerator"/>
+
+            <separator name="sep-2" display-label-id="workAndPriorityHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmw:workType" display-label-id="workType" read-only="true"/>
+            <show-property name="bpm:priority" display-label-id="workPriority"/>
+            <show-property name="bpm:dueDate" display-label-id="workDueDate"/>
+            <show-association name="bpm:assignee" display-label-id="worker" read-only="true"/>
+        </property-sheet>
+    </config>
+
+    <config evaluator="node-type" condition="bmw:W03_ValidateWorkTask">
+        <property-sheet>
+            <separator name="sep-1" display-label-id="jobWorkflowHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmw:jobStatus" display-label-id="jobStatus" read-only="true"/>
+            <show-property name="bmw:jobFolderLink" display-label-id="jobFolder" read-only="true" component-generator="CustomLinkGenerator"/>
+
+            <separator name="sep-2" display-label-id="workAndPriorityHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmw:workType" display-label-id="workType" read-only="true"/>
+            <show-property name="bpm:priority" display-label-id="workPriority"/>
+            <show-property name="bpm:dueDate" display-label-id="workDueDate"/>
+            <show-association name="bpm:assignee" display-label-id="worker" read-only="true"/>
+        </property-sheet>
+    </config>
+
+    <config evaluator="node-type" condition="bmw:W04_AmendWorkTask">
+        <property-sheet>
+            <separator name="sep-1" display-label-id="jobWorkflowHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmw:jobStatus" display-label-id="jobStatus" read-only="true"/>
+            <show-property name="bmw:jobFolderLink" display-label-id="jobFolder" read-only="true" component-generator="CustomLinkGenerator"/>
+
+            <separator name="sep-2" display-label-id="workAndPriorityHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmw:workType" display-label-id="workType" read-only="true"/>
+            <show-property name="bpm:priority" display-label-id="workPriority"/>
+            <show-property name="bpm:dueDate" display-label-id="workDueDate"/>
+        </property-sheet>
+    </config>
+
+</alfresco-config>

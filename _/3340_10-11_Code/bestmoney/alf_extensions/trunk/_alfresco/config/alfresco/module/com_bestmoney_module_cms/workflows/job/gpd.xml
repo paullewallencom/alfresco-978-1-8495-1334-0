@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<root-container name="bmw:jobProcess" width="760" height="880">
+  <node name="Start" x="102" y="21" width="132" height="36">
+    <edge>
+      <label x="5" y="-10"/>
+    </edge>
+  </node>
+  <node-container name="BriefDefinitionPhase" x="46" y="70" width="437" height="77">
+    <node name="BD01_CreateMaterialBrief" x="28" y="12" width="180" height="36">
+      <edge>
+        <label x="5" y="-10"/>
+      </edge>
+    </node>
+    <node name="BD02_UpdateMaterialBrief" x="220" y="11" width="185" height="36">
+      <edge>
+        <label x="5" y="-10"/>
+      </edge>
+    </node>
+  </node-container>
+  <node-container name="BriefSignOffPhase" x="46" y="158" width="433" height="91">
+    <node name="BriefSignOff" x="52" y="20" width="132" height="36">
+      <edge>
+        <label x="-133" y="-14"/>
+      </edge>
+    </node>
+    <node name="BriefOK?" x="228" y="21" width="132" height="36">
+      <edge>
+        <label x="-1" y="15"/>
+      </edge>
+      <edge>
+        <label x="30" y="-31"/>
+      </edge>
+    </node>
+  </node-container>
+  <node-container name="ProductionPhase" x="47" y="260" width="429" height="197">
+    <node name="P00_ValidateMaterialBrief" x="102" y="20" width="184" height="36">
+      <edge>
+        <label x="-80" y="87"/>
+        <bendpoint w1="176" h1="-5" w2="59" h2="194"/>
+        <bendpoint w1="175" h1="-167" w2="58" h2="32"/>
+      </edge>
+      <edge>
+        <label x="5" y="-17"/>
+      </edge>
+    </node>
+    <node name="MaterialProduction" x="122" y="87" width="146" height="36">
+      <edge>
+        <label x="5" y="-10"/>
+      </edge>
+    </node>
+    <node name="fork1" x="148" y="146" width="92" height="24">
+      <edge>
+        <label x="5" y="-10"/>
+      </edge>
+      <edge>
+        <label x="-17" y="-24"/>
+      </edge>
+    </node>
+  </node-container>
+  <node-container name="ProductionSignOffPhase" x="47" y="472" width="429" height="128">
+    <node name="ProductionSignOff" x="51" y="10" width="139" height="36">
+      <edge>
+        <label x="5" y="-10"/>
+      </edge>
+    </node>
+    <node name="SO00_ExternalReview" x="211" y="11" width="167" height="36">
+      <edge>
+        <label x="23" y="-12"/>
+        <bendpoint w1="-71" h1="30" w2="97" h2="-28"/>
+      </edge>
+      <edge>
+        <label x="37" y="-13"/>
+        <bendpoint w1="-143" h1="29" w2="25" h2="-29"/>
+      </edge>
+    </node>
+    <node name="join1" x="71" y="75" width="111" height="24">
+      <edge>
+        <label x="5" y="-10"/>
+      </edge>
+    </node>
+    <node name="MaterialOK?" x="237" y="65" width="117" height="36">
+      <edge>
+        <label x="21" y="-24"/>
+      </edge>
+      <edge>
+        <label x="-34" y="215"/>
+        <bendpoint w1="97" h1="-4" w2="81" h2="452"/>
+        <bendpoint w1="96" h1="-428" w2="80" h2="28"/>
+      </edge>
+    </node>
+  </node-container>
+  <node-container name="LivePhase" x="46" y="615" width="429" height="65">
+    <node name="MakeJobLive" x="140" y="5" width="132" height="36">
+      <edge>
+        <label x="5" y="-10"/>
+      </edge>
+    </node>
+  </node-container>
+  <node name="End" x="198" y="701" width="132" height="36"/>
+</root-container>

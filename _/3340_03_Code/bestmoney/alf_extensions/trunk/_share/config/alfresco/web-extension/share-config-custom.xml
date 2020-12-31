@@ -1,0 +1,11 @@
+<alfresco-config>
+
+ <!--
+    Used for customizations of the Alfresco Share web client.
+    We can customize for example search term minimum and maximum length,
+    username minimum length etc.
+    -->
+
+    
+
+</alfresco-config>

@@ -1,0 +1,95 @@
+<?xml version="1.0"?>
+
+<project name="3340_02_Code AMP Build File" default="package-amp" basedir=".">
+    <property file="build.properties" />
+    <available property="bakExists" file="${war.file}.bak" />
+
+    <target name="mkdirs">
+        <mkdir dir="${build.dir}/dist"/>
+        <mkdir dir="${build.dir}/lib"/>
+        <mkdir dir="${build.dir}/classes"/>
+    </target>
+
+    <path id="src.class.path">
+        <dirset dir="${build.dir}"/>
+        <fileset dir="${alfresco.sdk.dir}/lib/server" includes="**/*.jar"/>
+        <fileset dir="${alfresco.sdk.dir}/lib/remote" includes="**/*.jar"/>
+        <fileset dir="${project.dir}/lib" includes="**/*.jar"/>
+    </path>
+
+    <path id="test.class.path">
+        <path refid="src.class.path"/>
+        <fileset dir="${project.dir}/test/lib" includes="**/*.jar"/>
+    </path>
+
+    <target name="clean">
+        <delete quiet="yes" includeEmptyDirs="true" dir="${build.dir}"/>
+    </target>
+
+    <target name="clean-reset-war" if="bakExists">
+        <echo>Deleting alfresco war dir and copying back original alfresco.war from alfresco.war.bak</echo>
+        <delete quiet="yes" file="${war.file}"/>
+        <delete quiet="yes" includeEmptyDirs="true" dir="${alfresco.dir}/tomcat/webapps/alfresco"/>
+        <copy file="${war.file}.bak" tofile="${war.file}" />
+    </target>
+
+    <target name="compile">
+        <javac classpathref="src.class.path"
+               srcdir="${project.dir}/source"
+               destdir="${build.dir}/classes"
+               debug="true"
+               debuglevel="lines,vars,source"/>
+    </target>
+
+    <target name="compile-test">
+        <javac classpathref="test.class.path"
+               srcdir="${project.dir}/test/java"
+               destdir="${build.dir}/classes"/>
+    </target>
+
+    <target name="package-jar" depends="clean, mkdirs, compile">
+        <echo>Packaging 3340_02_Code Extension JAR</echo>
+        <jar destfile="${jar.file}">
+            <fileset dir="${build.dir}/classes" includes="**/*.class"/>
+            <fileset dir="${project.dir}/source/java" includes="**/*.xml"/>
+            <fileset dir="${project.dir}/source/java" includes="**/*.properties"/>
+        </jar>
+    </target>
+
+    <target name="package-amp" depends="package-jar"
+            description="Package the 3340_02_Code Extension AMP ">
+        <echo>Packaging 3340_02_Code Extension AMP</echo>
+        <zip destfile="${amp.file}">
+            <fileset dir="${project.dir}/build" includes="lib/*.jar"/>   
+            <fileset dir="${project.dir}" includes="lib/*.jar" />
+            <fileset dir="${project.dir}" includes="config/**/*.*" excludes="**/module.properties"/>
+            <fileset dir="${project.dir}/config/alfresco/module/com_bestmoney_module_test" includes="module.properties"/>
+            <fileset dir="${project.dir}" includes="web/**/*.*"/>
+        </zip>
+    </target>
+
+    <target name="update-war" depends="clean-reset-war, package-amp"
+            description="Installs 3340_02_Code Extension AMP into WAR">
+        <echo>Installing 3340_02_Code Extension AMP into WAR</echo>
+        <java dir="." fork="true" classname="org.alfresco.repo.module.tool.ModuleManagementTool">
+            <classpath refid="src.class.path"/>
+            <arg line="install ${amp.file} ${war.file} -force -verbose -nobackup"/>
+        </java>
+    </target>
+
+    <target name="test" depends="compile, compile-test"
+            description="Runs all the JUnit tests">
+        <echo>Running all the JUnit tests</echo>
+        <junit showoutput="yes" haltonfailure="yes" fork="on">
+            <formatter type="plain"/>
+            <classpath refid="test.class.path">
+            </classpath>
+            <batchtest>
+                <fileset dir="${build.dir}/classes" casesensitive="no">
+                    <include name="**/*ServiceImplTest.class"/>
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+
+</project>

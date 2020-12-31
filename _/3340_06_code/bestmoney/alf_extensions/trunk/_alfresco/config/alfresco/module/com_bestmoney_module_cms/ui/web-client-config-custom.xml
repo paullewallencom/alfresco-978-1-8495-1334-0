@@ -1,0 +1,48 @@
+<!--
+    Best Money Web Client Customizations
+    -->
+
+<alfresco-config>
+    <!-- Fix Google like search with implicit AND between search terms instead of OR as default -->
+    <config>
+        <client>
+            <search-and-terms>true</search-and-terms>
+        </client>
+    </config>
+	
+    <!-- Change from icons view to details view and show 25 items per page -->
+	<config evaluator="string-compare" condition="Views">
+	   <views>
+		  <view-defaults>
+			 <browse>
+				<view>details</view>
+				<page-size>
+				   <list>10</list>
+				   <details>25</details>
+				   <icons>10</icons>
+				</page-size>
+			 </browse>
+		  </view-defaults>
+	   </views>
+	</config>
+
+
+    <!-- List the new ITF Types in the Rules Wizard -->
+    <config evaluator="string-compare" condition="Action Wizards">
+        <!-- Adding Aspects to the Run Action & Create Rule Wizards -->
+        <aspects>
+            <aspect name="bmc:reviewable"/>
+        </aspects>
+
+        <!-- The list of types shown in the is-subtype condition -->
+        <subtypes>
+            <type name="bmc:document"/>
+        </subtypes>
+
+        <!-- The list of content and/or folder types shown in the specialise-type action -->
+        <specialise-types>
+            <type name="bmc:document"/>
+        </specialise-types>
+    </config>
+
+</alfresco-config>

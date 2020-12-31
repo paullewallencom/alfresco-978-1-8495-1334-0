@@ -1,0 +1,100 @@
+<?xml version="1.0"?>
+<project name="Alfresco 3 Business Solutions - Portal Client Build File"
+         default="build" basedir=".">
+    <property file="build.properties"/>
+    <property name="war.rad.dir" location="war/recentlyAddedDocumentsApp"/>
+    <property name="war.web.inf.dir" location="${war.rad.dir}/WEB-INF"/>
+    <property name="web.inf.dir" location="web/WEB-INF"/>
+    <property name="web.inf.classes.dir" location="${web.inf.dir}/classes"/>
+    <property name="src.dir" location="source/java"/>
+
+    <target name="clean" description="Clean this project">
+        <delete dir="${war.rad.dir}" failonerror="false"/>
+        <delete dir="${web.inf.classes.dir}" failonerror="false"/>
+    </target>
+
+    <target name="makeDirs" description="Create needed dirs">
+        <mkdir dir="${war.rad.dir}"/>
+        <mkdir dir="${web.inf.classes.dir}"/>
+    </target>
+
+    <path id="project.class.path">
+        <pathelement location="${web.inf.classes.dir}"/>
+        <pathelement location="${gwt.sdk.dir}/gwt-user.jar"/>
+        <fileset dir="${gwt.sdk.dir}" includes="gwt-dev*.jar"/>
+        <!-- Add any additional non-server libs (such as JUnit) -->
+        <fileset dir="${web.inf.dir}/lib" includes="**/*.jar"/>
+        <fileset dir="${liferay.plugins.sdk}" includes="**/*.jar"/>
+        <fileset dir="${liferay.portal.ext.lib}" includes="**/*.jar"/>
+    </path>
+
+    <target name="copyGxtResources"
+            description="Copy GXT resources and scripts to war/recentlyAddedDocumentsApp">
+        <copy todir="${war.rad.dir}">
+            <fileset dir="${gxt.sdk.dir}/resources" includes="**/*"/>
+        </copy>
+        <!--
+        <mkdir dir="${rad.web.dir}/scripts"/>
+        <copy todir="${rad.web.dir}/scripts">
+            <fileset dir="src/com/bestmoney/cms/web/ui/portlet/rad/gwt/client/scripts" includes="**/*"/>
+        </copy>
+        -->
+    </target>
+
+    <target name="copyWebInf"
+            description="Copy WEB-INF with classes, libs, and portal config to war/recentlyAddedDocumentsApp">
+        <copy todir="${war.web.inf.dir}">
+            <fileset dir="${web.inf.dir}" includes="**/*"/>
+        </copy>
+    </target>
+
+    <target name="javac" depends="clean,makeDirs" description="Compile java source">
+        <javac srcdir="${src.dir}" includes="**" encoding="utf-8"
+               destdir="${web.inf.classes.dir}"
+               source="1.5" target="1.5" nowarn="true"
+               debug="true" debuglevel="lines,vars,source">
+            <classpath refid="project.class.path"/>
+        </javac>
+        <copy todir="${web.inf.classes.dir}">
+            <fileset dir="${src.dir}" excludes="**/*.java"/>
+        </copy>
+    </target>
+
+    <target name="gwtc" depends="javac"
+            description="GWT compile to JavaScript">
+        <java failonerror="true" fork="true" classname="com.google.gwt.dev.Compiler">
+            <classpath>
+                <pathelement location="${src.dir}"/>
+                <path refid="project.class.path"/>
+            </classpath>
+            <!-- add jvmarg -Xss16M or similar if you see a StackOverflowError
+            -XdisableAggressiveOptimization -->
+            <jvmarg value="-Xms1024M"/>
+            <jvmarg value="-Xmx1024M"/>
+            <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
+            <arg value="com.bestmoney.cms.web.ui.portlet.rad.gwt.RecentlyAddedDocumentsApp"/>
+        </java>
+    </target>
+
+    <target name="hosted" depends="javac,copyGxtResources,copyWebInf"
+            description="Run hosted mode">
+        <java failonerror="true" fork="true" classname="com.google.gwt.dev.HostedMode">
+            <classpath>
+                <pathelement location="${src.dir}"/>
+                <path refid="project.class.path"/>
+            </classpath>
+            <jvmarg value="-Xmx256M"/>
+            <arg value="-startupUrl"/>
+            <arg value="recentlyAddedDocumentsApp/RecentlyAddedDocuments.html"/>
+            <!-- Additional arguments like -style PRETTY or -logLevel DEBUG -->
+            <arg value="com.bestmoney.cms.web.ui.portlet.rad.gwt.RecentlyAddedDocumentsApp"/>
+        </java>
+    </target>
+
+    <target name="build" depends="gwtc,copyGxtResources,copyWebInf" description="Build this project"/>
+
+    <target name="war" depends="build" description="Create a war file">
+        <zip destfile="RecentlyAddedDocumentsPortlet.war" basedir="${war.rad.dir}"/>
+    </target>
+
+</project>

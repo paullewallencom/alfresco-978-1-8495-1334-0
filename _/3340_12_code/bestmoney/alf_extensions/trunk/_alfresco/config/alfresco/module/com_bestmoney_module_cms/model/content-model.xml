@@ -1,0 +1,455 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="bmc:contentModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+    <!-- Optional meta-data about the model -->
+    <description>Best Money Document Content Model</description>
+    <author>Martin Bergljung</author>
+    <version>1.0</version>
+
+    <!-- Imports are required to allow references to definitions in other models -->
+    <imports>
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
+        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
+    </imports>
+
+    <!-- Best Money Document Content Model namespace -->
+    <namespaces>
+        <namespace uri="http://www.bestmoney.com/model/content/1.0" prefix="bmc"/>
+    </namespaces>
+
+    <!-- ===============================================================================================================
+        Best Money Constraints
+        -->
+    <constraints>
+        <constraint name="bmc:language_options" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <value></value>
+                    <!-- Empty value is valid -->
+                    <value>En</value>
+                    <!-- English -->
+                    <value>Fr</value>
+                    <!-- French -->
+                    <value>Ge</value>
+                    <!-- German -->
+                    <value>Sp</value>
+                    <!-- Spanish -->
+                    <value>Sw</value>
+                    <!-- Swedish -->
+                    <value>Ru</value>
+                    <!-- Russian -->
+                    <value>Jp</value>
+                    <!-- Japanese -->
+                    <value>Po</value>
+                    <!-- Portuguese -->
+                    <value>Ar</value>
+                    <!-- Arabic -->
+                    <value>Ch</value>
+                    <!-- Chinese -->
+                    <value>Ta</value>
+                    <!-- Tagalog -->
+                    <value>In</value>
+                    <!-- Indonesian -->
+                    <value>Tu</value>
+                    <!-- Turkish -->
+                </list>
+            </parameter>
+        </constraint>
+
+        <constraint name="bmc:country_options" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <value></value>
+                    <value>Albania</value>
+                    <value>Algeria</value>
+                    <value>Angola</value>
+                    <value>Antigua &amp; Barbuda</value>
+                    <value>Argentina</value>
+                    <value>Armenia</value>
+                    <value>Australia</value>
+                    <value>Austria</value>
+                    <value>Azerbaijan</value>
+                    <value>Bahrain</value>
+                    <value>Bangladesh</value>
+                    <value>Barbados</value>
+                    <value>Belarus</value>
+                    <value>Belgium</value>
+                    <value>Benin</value>
+                    <value>Bermuda</value>
+                    <value>Bolivia</value>
+                    <value>Bosnia</value>
+                    <value>Botswana</value>
+                    <value>Brazil</value>
+                    <value>Bulgaria</value>
+                    <value>Burma</value>
+                    <value>Burkina Faso</value>
+                    <value>Burundi</value>
+                    <value>Cambodia</value>
+                    <value>Cameroon</value>
+                    <value>Canada</value>
+                    <value>Cape Verde</value>
+                    <value>Chad</value>
+                    <value>Chile</value>
+                    <value>Colombia</value>
+                    <value>Congo</value>
+                    <value>Congo DR</value>
+                    <value>Costa Rica</value>
+                    <value>Croatia</value>
+                    <value>Curacao</value>
+                    <value>Cyprus</value>
+                    <value>Czech Republic</value>
+                    <value>Denmark</value>
+                    <value>Djibouti</value>
+                    <value>Dominica</value>
+                    <value>Dominican Republic</value>
+                    <value>East Timor</value>
+                    <value>Ecuador</value>
+                    <value>Egypt</value>
+                    <value>El Salvador</value>
+                    <value>Eritrea</value>
+                    <value>Estonia</value>
+                    <value>Ethiopia</value>
+                    <value>Faroe Islands</value>
+                    <value>Fiji</value>
+                    <value>Finland</value>
+                    <value>France</value>
+                    <value>Gabon</value>
+                    <value>Gambia</value>
+                    <value>Georgia</value>
+                    <value>Germany</value>
+                    <value>Ghana</value>
+                    <value>Great Britain</value>
+                    <value>Greece</value>
+                    <value>Grenada</value>
+                    <value>Guatemala</value>
+                    <value>Guinea-Bissau</value>
+                    <value>Guinea-Conakry</value>
+                    <value>Guyana</value>
+                    <value>Honduras</value>
+                    <value>Hong Kong</value>
+                    <value>Hungary</value>
+                    <value>Iceland</value>
+                    <value>India</value>
+                    <value>Indonesia</value>
+                    <value>Iran</value>
+                    <value>Iraq</value>
+                    <value>Ireland</value>
+                    <value>Israel</value>
+                    <value>Italy</value>
+                    <value>Ivory Coast</value>
+                    <value>Jamaica</value>
+                    <value>Japan</value>
+                    <value>Jordan</value>
+                    <value>Kazakhstan</value>
+                    <value>Kenya</value>
+                    <value>Kiribati</value>
+                    <value>Korea</value>
+                    <value>Kosovo</value>
+                    <value>Kuwait</value>
+                    <value>Kyrgyzstan</value>
+                    <value>Latvia</value>
+                    <value>Lebanon</value>
+                    <value>Lesotho</value>
+                    <value>Liberia</value>
+                    <value>Lithuania</value>
+                    <value>Luxembourg</value>
+                    <value>Macedonia (FYR)</value>
+                    <value>Madagascar</value>
+                    <value>Malawi</value>
+                    <value>Malaysia</value>
+                    <value>Mali</value>
+                    <value>Malta</value>
+                    <value>Mauritania</value>
+                    <value>Mauritius</value>
+                    <value>Mexico</value>
+                    <value>Mongolia</value>
+                    <value>Montenegro</value>
+                    <value>Morocco</value>
+                    <value>Mozambique</value>
+                    <value>Namibia</value>
+                    <value>Nepal</value>
+                    <value>Netherlands</value>
+                    <value>New Zealand</value>
+                    <value>Nicaragua</value>
+                    <value>Niger</value>
+                    <value>Nigeria</value>
+                    <value>Norway</value>
+                    <value>Pakistan</value>
+                    <value>Palestine</value>
+                    <value>Panama</value>
+                    <value>Papua New Guinea</value>
+                    <value>Paraguay</value>
+                    <value>Peru</value>
+                    <value>Philippines</value>
+                    <value>Poland</value>
+                    <value>Portugal</value>
+                    <value>Puerto Rico</value>
+                    <value>Romania</value>
+                    <value>Russia</value>
+                    <value>Rwanda</value>
+                    <value>Senegal</value>
+                    <value>Serbia</value>
+                    <value>Sierra Leone</value>
+                    <value>Singapore</value>
+                    <value>Slovakia</value>
+                    <value>Slovenia</value>
+                    <value>Solomon Islands</value>
+                    <value>Somalia</value>
+                    <value>South Africa</value>
+                    <value>Spain</value>
+                    <value>Sri Lanka</value>
+                    <value>St. Lucia</value>
+                    <value>Swaziland</value>
+                    <value>Sweden</value>
+                    <value>Switzerland</value>
+                    <value>Taiwan</value>
+                    <value>Tanzania</value>
+                    <value>Thailand</value>
+                    <value>Togo</value>
+                    <value>Trinidad</value>
+                    <value>Tunisia</value>
+                    <value>Turkey</value>
+                    <value>Tuvalu</value>
+                    <value>Uganda</value>
+                    <value>Ukraine</value>
+                    <value>Uruguay</value>
+                    <value>USA</value>
+                    <value>Uzbekistan</value>
+                    <value>Vanuatu</value>
+                    <value>Venezuela</value>
+                    <value>Yemen</value>
+                    <value>Yugoslavia</value>
+                    <value>Zambia</value>
+                    <value>Zimbabwe</value>
+                </list>
+            </parameter>
+        </constraint>
+
+        <constraint name="bmc:department_options" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <value></value>
+                    <value>A</value>
+                    <!-- Audit -->
+                    <value>HR</value>
+                    <!-- Human Resources -->
+                    <value>FM</value>
+                    <!-- Financial Markets -->
+                    <value>FS</value>
+                    <!-- Financial Services -->
+                    <value>FU</value>
+                    <!-- Funds Management -->
+                    <value>IT</value>
+                    <!-- Information Technology -->
+                    <value>M</value>
+                    <!--  Marketing -->
+                    <value>L</value>
+                    <!--  Legal -->
+                </list>
+            </parameter>
+        </constraint>
+
+        <!--
+            The different products that Best Money sells
+            -->
+        <constraint name="bmc:product_options" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <value>Car Insurance</value>
+                    <value>Credit Card</value>
+                    <value>Current Account</value>
+                    <value>Deposit Account</value>
+                    <value>Guaranteed Equity Bond</value>
+                    <value>Home Insurance</value>
+                    <value>ISA - Cash</value>
+                    <value>ISA - Stocks and Shares</value>
+                    <value>Life Insurance</value>
+                    <value>Loans</value>
+                    <value>Mortgage</value>
+                    <value>Personal Pension</value>
+                    <value>Prepaid Card</value>
+                    <value>Travel Insurance</value>
+                </list>
+            </parameter>
+        </constraint>
+
+        <!--
+            A Marketing job can be one of the following types.
+          -->
+        <constraint name="bmc:jobType_options" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <value>Advert</value>
+                    <value>Booklet</value>
+                    <value>Brochure</value>
+                    <value>Cover Letter</value>
+                    <value>Email</value>
+                    <value>Envelope</value>
+                    <value>Logo</value>
+                    <value>Podcasting/Video</value>
+                    <value>Poster</value>
+                    <value>PR</value>
+                    <value>Screen Saver</value>
+                    <value>SMS</value>
+                    <value>Social Media</value>
+                    <value>Web Page</value>
+                </list>
+            </parameter>
+        </constraint>
+    </constraints>
+
+    <!-- ===============================================================================================================
+    Best Money Types
+    -->
+
+    <!--
+    Enterprise-wide Document root type
+    -->
+    <types>
+        <type name="bmc:document">
+            <title>Best Money Document</title>
+            <parent>cm:content</parent>
+            <mandatory-aspects>
+                <aspect>bmc:documentData</aspect>
+            </mandatory-aspects>
+        </type>
+        <type name="bmc:circular">
+            <title>Best Money Circular Document</title>
+            <parent>bmc:document</parent>
+        </type>
+        <type name="bmc:meeting">
+            <title>Best Money Meeting Document</title>
+            <parent>bmc:document</parent>
+            <mandatory-aspects>
+                <aspect>bmc:meetingData</aspect>
+            </mandatory-aspects>
+        </type>
+        <type name="bmc:financeDoc">
+            <title>Best Money Finance Document</title>
+            <parent>bmc:document</parent>
+        </type>
+        <type name="bmc:marketingDoc">
+            <title>Best Money Finance Document</title>
+            <parent>bmc:document</parent>
+        </type>
+        <type name="bmc:legalDoc">
+            <title>Best Money Finance Document</title>
+            <parent>bmc:document</parent>
+        </type>
+        <type name="bmc:prDoc">
+            <title>Best Money Public Relations Doc</title>
+            <parent>bmc:document</parent>
+        </type>
+        <type name="bmc:itDoc">
+            <title>Best Money IT Doc</title>
+            <parent>bmc:document</parent>
+        </type>
+    </types>
+
+    <!-- ===============================================================================================================
+    Best Money Aspects
+    -->
+
+    <aspects>
+        <!--
+            Best Money Document Data
+        -->
+        <aspect name="bmc:documentData">
+            <title>Best Money Document Data</title>
+            <properties>
+                <property name="bmc:departments">
+                    <title>The Best Money department(s) that created the document</title>
+                    <type>d:text</type>
+                    <multiple>true</multiple>
+                    <constraints>
+                        <constraint ref="bmc:department_options"/>
+                    </constraints>
+                </property>
+                <property name="bmc:language">
+                    <title>Language that the document is written in</title>
+                    <type>d:text</type>
+                    <constraints>
+                        <constraint ref="bmc:language_options"/>
+                    </constraints>
+                </property>
+                <property name="bmc:countries">
+                    <title>The country/countries relevant to the document</title>
+                    <type>d:text</type>
+                    <multiple>true</multiple>
+                    <constraints>
+                        <constraint ref="bmc:country_options"/>
+                    </constraints>
+                </property>
+            </properties>
+        </aspect>
+
+        <aspect name="bmc:meetingData">
+            <title>Best Money Meeting Document Data</title>
+            <properties>
+                <property name="bmc:meetingCode">
+                    <title>Unique Meeting Code</title>
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+            </properties>
+        </aspect>
+
+        <!--
+            Reviewable folder
+        -->
+        <aspect name="bmc:reviewable">
+            <title>Reviewable Folder</title>
+            <properties>
+                <property name="bmc:reviewPeriod">
+                    <title>The number of years until documents in this folder should be reviewed</title>
+                    <type>d:int</type>
+                    <mandatory>true</mandatory>
+                    <default>5</default>
+                </property>
+                <property name="bmc:includeSubFolders">
+                    <title>Should sub folders also be affected by this review period</title>
+                    <type>d:boolean</type>
+                    <mandatory>true</mandatory>
+                    <default>true</default>
+                </property>
+            </properties>
+        </aspect>
+
+        <!--
+            A document/file that has been produced via a marketing production job has this aspect
+        -->
+        <aspect name="bmc:job">
+            <title>Marketing Campaign Job</title>
+            <properties>
+                <!-- Unique id for the Best Money markting campaign -->
+                <property name="bmc:campaignId">
+                    <title>Unique campaign identifier</title>
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+
+                <!-- Associated Best Money product -->
+                <property name="bmc:product">
+                    <title>Associated Product</title>
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <default>Credit Card</default>
+                    <constraints>
+                        <constraint ref="bmc:product_options"/>
+                    </constraints>
+                </property>
+
+                <!-- This marketing job is of this type -->
+                <property name="bmc:jobType">
+                    <title>Job Type</title>
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <constraints>
+                        <constraint ref="bmc:jobType_options"/>
+                    </constraints>
+                </property>
+            </properties>
+        </aspect>
+
+    </aspects>
+</model>

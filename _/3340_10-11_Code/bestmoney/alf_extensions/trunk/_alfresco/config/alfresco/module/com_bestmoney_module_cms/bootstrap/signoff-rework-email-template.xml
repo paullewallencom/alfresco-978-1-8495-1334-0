@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view:view xmlns:view="http://www.alfresco.org/view/repository/1.0">
+    <cm:content xmlns:view="http://www.alfresco.org/view/repository/1.0"
+                xmlns:sys="http://www.alfresco.org/model/system/1.0"
+                xmlns:app="http://www.alfresco.org/model/application/1.0"
+                xmlns:cm="http://www.alfresco.org/model/content/1.0"
+                xmlns=""
+                view:childName="cm:signoff-rework-email.ftl">
+        <view:aspects>
+            <cm:titled></cm:titled>
+            <app:inlineeditable></app:inlineeditable>
+        </view:aspects>
+        <view:properties>
+            <sys:store-protocol>workspace</sys:store-protocol>
+            <sys:store-identifier>SpacesStore</sys:store-identifier>
+            <sys:node-uuid>signoff_rework_email_template_1_0</sys:node-uuid>
+            <app:editInline>true</app:editInline>
+            <cm:description>Sign-Off Rejection Email Template when rework is required</cm:description>
+            <cm:content>contentUrl=classpath:alfresco/module/com_bestmoney_module_cms/templates/signoff-rework-email.ftl|mimetype=text/plain|size=668|encoding=UTF-8</cm:content>
+            <cm:title>signoff-rework-email.ftl</cm:title>
+            <cm:name>signoff-rework-email.ftl</cm:name>
+            <cm:created>2010-08-11T15:00:00.000+01:00</cm:created>
+        </view:properties>
+        <view:associations></view:associations>
+    </cm:content>
+</view:view>

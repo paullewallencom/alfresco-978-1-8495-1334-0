@@ -1,0 +1,44 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+
+    <!-- The bootstrap-context.xml file is used for patch definitions, importers, 
+		 message loaders, loading custom web client configuration, 
+		 and loading custom content models.  -->
+		 
+		 
+	<bean id="com.bestmoney.bootstrapExtraBundlesBean" class="org.alfresco.web.app.ResourceBundleBootstrap">
+		<property name="resourceBundles">
+			<list>
+				<value>alfresco.module.com_bestmoney_module_cms.messages.model-messages</value>
+				<value>alfresco.module.com_bestmoney_module_cms.messages.patch-messages</value>
+			</list>
+		</property>
+	</bean>
+   
+    <!-- Registration of new models -->
+    <bean id="com.bestmoney.dictionaryBootstrap" parent="dictionaryModelBootstrap" depends-on="dictionaryBootstrap">
+        <property name="models">
+            <list>
+                <value>alfresco/module/com_bestmoney_module_cms/model/content-model.xml</value>
+                <value>alfresco/module/com_bestmoney_module_cms/model/workflow-model.xml</value>
+            </list>
+        </property>
+    </bean>    
+  
+	<!--
+        Bootstrap custom UI configuration 
+        -->
+    <bean id="com.bestmoney.webclient.configBootstrap" class="org.alfresco.web.config.WebClientConfigBootstrap"
+          init-method="init">
+        <property name="configs">
+            <list>
+                <value>classpath:alfresco/module/com_bestmoney_module_cms/ui/web-client-config-custom.xml</value>
+            </list>								 
+        </property>
+    </bean>
+	
+</beans>

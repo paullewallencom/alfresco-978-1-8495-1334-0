@@ -1,0 +1,402 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition xmlns="urn:jbpm.org:jpdl-3.2" name="bmw:jobProcess">
+    <!--
+          Assignees
+      -->
+
+    <swimlane name="initiator"/>
+
+    <!--
+          Workflow starts
+      -->
+
+    <start-state name="Start">
+        <description>
+            Kicks off the job process.
+            The job is actually created in the BD01_CreateMaterialBrief node as this
+            enables the user to Save job data and complete the task later if he or she wants to,
+            which cannot be done in this start task.
+        </description>
+        <task name="bmw:startJobProcessTask" swimlane="initiator"/>
+        <transition to="BriefDefinitionPhase/BD01_CreateMaterialBrief"/>
+        <event type="node-leave">
+            <script>
+                <variable name="studioTeamMgrsGroupName" access="write"/>
+                <expression>
+                    studioTeamMgrsGroupName = "GROUP_STUDIO_TEAM_MANAGERS";
+                </expression>
+            </script>
+        </event>
+    </start-state>
+
+    <super-state name="BriefDefinitionPhase">
+        <event type="superstate-enter">
+            <script>
+                <variable name="bmw_jobStatus" access="write"/>
+                <expression>
+                    bmw_jobStatus = "Brief Definition";
+                </expression>
+            </script>
+        </event>
+        <task-node name="BD01_CreateMaterialBrief">
+            <task name="bmw:BD01_CreateMaterialBriefTask" swimlane="initiator">
+                <event type="node-enter">
+                    <action class="org.alfresco.repo.workflow.jbpm.AlfrescoJavaScript">
+                        <script>
+                            executionContext.setVariable("taskNotificationRecipientGroup","");
+                            executionContext.setVariable("taskNotificationRecipientEmail", initiator.properties.email);
+                        </script>
+                    </action>
+                    <action class="com.bestmoney.cms.workflow.actionhandler.TaskAssignmentNotificationActionHandler"/>
+                </event>
+                <event type="task-create">
+                    <action class="org.alfresco.repo.workflow.jbpm.AlfrescoJavaScript">
+                        <script>
+                            <!--
+                                Set default values here as it does not work to set them in the workflow content model,
+                                the sub-process property-sheet will then override any value that have been set with
+                                the default value.
+                            -->
+                            taskInstance.setVariable("bmw_briefSignOffCategory", "LEV3");
+                            taskInstance.setVariable("bmw_productionSignOffCategory", "LEV3");
+                        </script>
+                    </action>
+                </event>
+            </task>
+            <transition to="../BriefSignOffPhase/BriefSignOff"></transition>
+        </task-node>
+        <task-node name="BD02_UpdateMaterialBrief">
+            <task name="bmw:BD02_UpdateMaterialBriefTask" swimlane="initiator"/>
+            <transition to="../BriefSignOffPhase/BriefSignOff"/>
+        </task-node>
+        <event type="superstate-leave">
+            <script>
+                <!-- Fix separate variables indicating which work types that have been selected -->
+                <variable name="bmw_workTypes" access="read"/>
+                <variable name="conceptWork" access="write"/>
+                <variable name="designWork" access="write"/>
+                <variable name="copyWork" access="write"/>
+                <expression>
+                    conceptWork = false;
+                    designWork = false;
+                    copyWork = false;
+                    if (bmw_workTypes.contains("Concept")) {
+                        conceptWork = true;
+                    }
+                    if (bmw_workTypes.contains("Design")) {
+                        designWork = true;
+                    }
+                    if (bmw_workTypes.contains("Copywrite")) {
+                        copyWork = true;
+                    }
+                    System.out.println("ConceptWork = " + conceptWork);
+                    System.out.println("DesignWork = " + designWork);
+                    System.out.println("CopyWork = " + copyWork);
+                </expression>
+            </script>
+        </event>
+    </super-state>
+
+    <super-state name="BriefSignOffPhase">
+        <event type="superstate-enter">
+            <script>
+                <variable name="bmw_jobStatus" access="write"/>
+                <expression>
+                    bmw_jobStatus = "Brief Sign-Off";
+                </expression>
+            </script>
+            <action class="org.alfresco.repo.workflow.jbpm.AlfrescoJavaScript">
+                <script>
+                    <variable name="bmw_jobFolderLink" access="write"/>
+                    <expression>
+                        <!-- Setup the URL to the job folder that is displayed for each task in all processes -->
+                        var jobfolder = bpm_package.children[0].parent;
+                        logger.log("Folder name = " + jobfolder.properties["name"]);
+                        if (jobfolder != null) {
+                            bmw_jobFolderLink = "/alfresco" + jobfolder.getUrl();
+                        } else {
+                            logger.log("jobfolder = null");
+                        }
+                    </expression>
+                </script>
+            </action>
+        </event>
+
+        <process-state name="BriefSignOff">
+            <description>
+                Start the Sign-off sub-process for the Brief Phase.
+                We need to pass in all variables that the sub-process needs.
+            </description>
+
+            <sub-process name="bmw:signoffProcess"/>
+
+            <event type="node-enter">
+                <script>
+                    <!-- Setup a variable with the specific sign-off phase so we can pass to sub-process -->
+                    <variable name="bmw_signOffPhase" access="write"/>
+                    <expression>
+                        bmw_signOffPhase = "Material Brief";
+                    </expression>
+                </script>
+            </event>
+
+            <!-- outbound properties (set in subprocess), mapped-name means property have different name in sub-process -->
+            <variable name="briefSignedOff" access="write" mapped-name="signedOff"/>
+            <variable name="briefSignOffProcId" access="write" mapped-name="procId"/>
+            <!-- Store subprocess id so we can query with it later -->
+
+            <!-- inbound properties (passed into subprocess) mapped-name means property have different name in sub-process
+                (Note. they will only be passed into subprocess if they are not null) -->
+            <variable name="bmc_campaignId" access="read"/>
+            <variable name="bmc_product" access="read"/>
+            <variable name="bmc_jobType" access="read"/>
+            <variable name="bmw_jobStatus" access="read"/>
+            <variable name="bmw_workTypes" access="read"/>
+            <variable name="bmw_jobFolderLink" access="read"/>
+            <variable name="bmw_conceptWorkDueDate" access="read"/>
+            <variable name="bmw_designWorkDueDate" access="read"/>
+            <variable name="bmw_copywriteWorkDueDate" access="read"/>
+            <variable name="bmw_briefSignOffCategory" access="read"/>
+            <variable name="bmw_productionSignOffCategory" access="read"/>
+            <variable name="bmw_assigneeApprover1Person" access="read"/>
+            <variable name="bmw_assigneeApprover2Person" access="read"/>
+            <variable name="bmw_assigneeApprover3Person" access="read"/>
+            <variable name="bmw_externalReviewerEmail" access="read"/>
+            <variable name="bmw_signOffPhase" access="read"/>
+            <variable name="bpm_package" access="read"/>
+            <variable name="companyhome" access="read"/>
+            <variable name="initiator" access="read" mapped-name="jobOwner"/>
+            <variable name="bmw_briefSignOffCategory" access="read" mapped-name="signOffCategory"/>
+
+            <transition to="BriefOK?"/>
+        </process-state>
+
+        <decision name="BriefOK?">
+            <transition to="../BriefDefinitionPhase/BD02_UpdateMaterialBrief" name="no"></transition>
+            <transition to="../ProductionPhase/P00_ValidateMaterialBrief" name="yes">
+                <condition>#{briefSignedOff == true}</condition>
+            </transition>
+        </decision>
+    </super-state>
+
+    <super-state name="ProductionPhase">
+        <event type="superstate-enter">
+            <script>
+                <variable name="bmw_jobStatus" access="write"/>
+                <expression>
+                    bmw_jobStatus = "Production";
+                </expression>
+            </script>
+        </event>
+
+        <task-node name="P00_ValidateMaterialBrief">
+            <task name="bmw:P00_ValidateMaterialBriefTask">
+                <assignment class="org.alfresco.repo.workflow.jbpm.AlfrescoAssignment">
+                    <pooledactors>#{people.getGroup(studioTeamMgrsGroupName)}</pooledactors>
+                </assignment>
+            </task>
+            <transition to="../BriefDefinitionPhase/BD02_UpdateMaterialBrief" name="notValid"/>
+            <transition to="MaterialProduction" name="valid"/>
+        </task-node>
+
+        <process-state name="MaterialProduction">
+            <sub-process name="bmw:studioProcess"/>
+
+            <!-- outbound properties (set in subprocess) mapped-name means property have different name in sub-process -->
+            <variable name="studioProcId" access="write" mapped-name="procId"/>
+            <!-- Store subprocess id so we can query with it later -->
+            <variable name="studioConceptWorkProcId" access="write"/>
+            <variable name="studioCopyWorkProcId" access="write"/>
+            <variable name="studioDesignWorkProcId" access="write"/>
+
+            <!-- inbound properties (passed into subprocess) mapped-name means property have different name in sub-process
+            (Note. they will only be passed into subprocess if they are not null) -->
+            <variable name="bmc_campaignId" access="read"/>
+            <variable name="bmc_product" access="read"/>
+            <variable name="bmc_jobType" access="read"/>
+            <variable name="bmw_jobStatus" access="read"/>
+            <variable name="bmw_workTypes" access="read"/>
+            <variable name="bmw_jobFolderLink" access="read"/>
+            <variable name="bmw_conceptWorkDueDate" access="read"/>
+            <variable name="bmw_designWorkDueDate" access="read"/>
+            <variable name="bmw_copywriteWorkDueDate" access="read"/>
+            <variable name="studioTeamMgrsGroupName" access="read"/>
+            <variable name="conceptWork" access="read"/>
+            <variable name="designWork" access="read"/>
+            <variable name="copyWork" access="read"/>
+            <variable name="bpm_package" access="read"/>
+            <variable name="initiator" access="read" mapped-name="jobOwner"/>
+
+            <!-- Some properties are passed in to the sub-process even if they are not used or displayed,
+                this is necessary when the property is defined as mandatory in the content model.
+                Mandatory properties will be checked when a task is completed in a sub-process .
+            -->
+            <variable name="bmw_briefSignOffCategory" access="read"/>
+            <variable name="bmw_productionSignOffCategory" access="read"/>
+            <variable name="bmw_assigneeApprover3Person" access="read"/>
+            <variable name="bmw_externalReviewerEmail" access="read"/>
+
+            <transition to="fork1" name=""/>
+        </process-state>
+
+        <fork name="fork1">
+            <transition to="../ProductionSignOffPhase/ProductionSignOff"/>
+            <transition to="../ProductionSignOffPhase/SO00_ExternalReview" name="externalReview"/>
+        </fork>
+    </super-state>
+
+    <super-state name="ProductionSignOffPhase">
+        <event type="superstate-enter">
+            <script>
+                <variable name="bmw_jobStatus" access="write"/>
+                <expression>
+                    bmw_jobStatus = "Production Sign-Off";
+                </expression>
+            </script>
+        </event>
+
+        <process-state name="ProductionSignOff">
+            <description>
+                Start the Sign-off sub-process for the Production Sign-off Phase.
+                We need to pass in all variables that the sub-process needs.
+            </description>
+
+            <sub-process name="bmw:signoffProcess"/>
+
+            <event type="node-enter">
+                <script>
+                    <!-- Setup a variable with the specific sign-off phase so we can pass to sub-process -->
+                    <variable name="bmw_signOffPhase" access="write"/>
+                    <expression>
+                        bmw_signOffPhase = "Produced Material";
+                    </expression>
+                </script>
+            </event>
+
+            <!-- outbound properties (set in subprocess), mapped-name means property have different name in sub-process -->
+            <variable name="productionSignedOff" access="write" mapped-name="signedOff"/>
+            <variable name="productionSignOffProcId" access="write" mapped-name="procId"/>
+            <!-- Store subprocess id so we can query with it later -->
+
+            <!-- inbound properties (passed into subprocess) mapped-name means property have different name in sub-process
+                (Note. they will only be passed into subprocess if they are not null) -->
+            <variable name="bmc_campaignId" access="read"/>
+            <variable name="bmc_product" access="read"/>
+            <variable name="bmc_jobType" access="read"/>
+            <variable name="bmw_jobStatus" access="read"/>
+            <variable name="bmw_workTypes" access="read"/>
+            <variable name="bmw_jobFolderLink" access="read"/>
+            <variable name="bmw_conceptWorkDueDate" access="read"/>
+            <variable name="bmw_designWorkDueDate" access="read"/>
+            <variable name="bmw_copywriteWorkDueDate" access="read"/>
+            <variable name="bmw_briefSignOffCategory" access="read"/>
+            <variable name="bmw_productionSignOffCategory" access="read"/>
+            <variable name="bmw_assigneeApprover1Person" access="read"/>
+            <variable name="bmw_assigneeApprover2Person" access="read"/>
+            <variable name="bmw_assigneeApprover3Person" access="read"/>
+            <variable name="bmw_externalReviewerEmail" access="read"/>
+            <variable name="bmw_signOffPhase" access="read"/>
+            <variable name="bpm_package" access="read"/>
+            <variable name="companyhome" access="read"/>
+            <variable name="initiator" access="read" mapped-name="jobOwner"/>
+            <variable name="bmw_productionSignOffCategory" access="read" mapped-name="signOffCategory"/>
+
+            <transition to="join1"/>
+        </process-state>
+
+        <state name="SO00_ExternalReview">
+            <event type="node-enter">
+                <!-- Send email to external reviewer, and wait for response -->
+                <script>
+                    <variable name="externallySignedOff" access="write"/>
+                    <variable name="notificationRecipient" access="read,write"/>
+                    <variable name="bmw_externalReviewerEmail" access="read"/>
+                    <expression>
+                        externallySignedOff = false;
+                        notificationRecipient = bmw_externalReviewerEmail;
+                    </expression>
+                </script>
+                <action class="com.bestmoney.cms.workflow.actionhandler.ExternalSignOffNotification"/>
+            </event>
+            <transition to="join1" name="reject"/>
+            <transition to="join1" name="approve">
+                <script>
+                    <variable name="externallySignedOff" access="read,write"/>
+                    <expression>
+                        externallySignedOff = true;
+                    </expression>
+                </script>
+            </transition>
+        </state>
+
+        <join name="join1">
+            <transition to="MaterialOK?"/>
+        </join>
+
+        <decision name="MaterialOK?">
+            <transition to="../BriefDefinitionPhase/BD02_UpdateMaterialBrief" name="no"></transition>
+            <transition to="../LivePhase/MakeJobLive" name="yes">
+                <condition>#{productionSignedOff == true and externallySignedOff == true}</condition>
+            </transition>
+        </decision>
+    </super-state>
+
+    <super-state name="LivePhase">
+        <event type="superstate-enter">
+            <script>
+                <variable name="bmw_jobStatus" access="write"/>
+                <expression>
+                    bmw_jobStatus = "Live";
+                </expression>
+            </script>
+        </event>
+
+        <node name="MakeJobLive">
+            <description>
+                Set status to Live for produced Materials.
+                Set Campaign and Job Metadata for Materials document, to be able to search on for example camaignId.
+                Create Excel spreadsheet with all the tasks that was involved in this Job,
+                store as read-only in same folder as material.
+            </description>
+            <event type="node-enter">
+                <action class="com.bestmoney.cms.workflow.actionhandler.CreateTaskListForJobActionHandler"/>
+                <!--
+                  Note. If you comment with "//", you will comment out all your code after that
+                        since Alfresco JavaScript is formatting code in 1 line only.
+                        Check all date, list vars if they are undefined, other vars have defaults.
+                  Note. The action scripts are stored in the JBPM_DELEGATION table in the CONFIGURATION_ column.
+                        And the size is just 4000 bytes when using the Derby database, when using MySQL it is
+                        a TEXT type so no problem with size there.
+                  Note. Any comments inside the script will be stored too, even if you do an XML comment like this
+                        when inside the action tag.
+                -->
+                <action class="org.alfresco.repo.workflow.jbpm.AlfrescoJavaScript">
+                    <runas>admin</runas>
+                    <script>
+                        var props = new Array();
+                        props["bmc:campaignId"] = bmc_campaignId;
+                        props["bmc:product"] = bmc_product;
+                        props["bmc:jobType"] = bmc_jobType;
+
+                        var jobfolder = bpm_package.children[0].parent;
+
+                        for (var i = 0; i &lt; jobfolder.children.length; i++) {
+                            var document = jobfolder.children[i];
+                            if (document.isDocument) {
+                                document.addAspect("bmc:job", props);
+                                document.save();
+                                logger.log("Added Job metadata aspect to " + document.properties["name"]);
+                            }
+                        }
+                    </script>
+                </action>
+            </event>
+
+            <transition to="../End"/>
+        </node>
+    </super-state>
+
+    <end-state name="End"/>
+
+</process-definition>

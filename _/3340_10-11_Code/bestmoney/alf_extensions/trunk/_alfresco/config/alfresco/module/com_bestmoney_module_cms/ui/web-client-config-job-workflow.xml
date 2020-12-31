@@ -1,0 +1,79 @@
+<alfresco-config>
+
+    <!--
+        Workflow property sheets for main Job Process
+        -->
+    
+    <config evaluator="node-type" condition="bmw:startJobProcessTask">
+        <property-sheet>
+            <separator name="sep-1" display-label-id="general" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bpm:comment" component-generator="TextAreaGenerator"/>
+        </property-sheet>
+    </config>
+
+    <config evaluator="node-type" condition="bmw:BD01_CreateMaterialBriefTask">
+        <property-sheet>
+            <separator name="sep-1" display-label-id="jobWorkflowHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmc:campaignId" display-label-id="campaignId" />
+            <show-property name="bmc:product" display-label-id="product" />
+            <show-property name="bmc:jobType" display-label-id="jobType" />
+            <show-property name="bmw:jobStatus" display-label-id="jobStatus" read-only="true"/>
+
+            <separator name="sep-2" display-label-id="signoffCatAndAssigneesHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmw:briefSignOffCategory" display-label-id="briefSignOffCategory" />
+            <show-property name="bmw:productionSignOffCategory" display-label-id="productionSignOffCategory" />
+            <show-association name="bmw:assigneeApprover1Person" display-label-id="approver1Person" />
+            <show-association name="bmw:assigneeApprover2Person" display-label-id="approver2Person" />
+            <show-association name="bmw:assigneeApprover3Person" display-label-id="approver3Person" />
+            <show-property name="bmw:externalReviewerEmail" display-label-id="externalReviewerEmail" />
+
+            <separator name="sep-3" display-label-id="workItemsHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmw:workTypes" display-label-id="workTypes" />
+            <show-property name="bmw:conceptWorkDueDate" display-label-id="conceptWorkDueDate" />
+            <show-property name="bmw:designWorkDueDate" display-label-id="designWorkDueDate" />
+            <show-property name="bmw:copywriteWorkDueDate" display-label-id="copywriteWorkDueDate" />
+        </property-sheet>
+    </config>
+
+    <config evaluator="node-type" condition="bmw:BD02_UpdateMaterialBriefTask">
+        <property-sheet>
+            <separator name="sep-1" display-label-id="jobWorkflowHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmc:campaignId" display-label-id="campaignId" />
+            <show-property name="bmc:product" display-label-id="product" />
+            <show-property name="bmc:jobType" display-label-id="jobType" />
+            <show-property name="bmw:jobStatus" display-label-id="jobStatus" read-only="true"/>
+
+            <separator name="sep-2" display-label-id="signoffCatAndAssigneesHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmw:briefSignOffCategory" display-label-id="briefSignOffCategory" />
+            <show-property name="bmw:productionSignOffCategory" display-label-id="productionSignOffCategory" />
+            <show-association name="bmw:assigneeApprover1Person" display-label-id="approver1Person" />
+            <show-association name="bmw:assigneeApprover2Person" display-label-id="approver2Person" />
+            <show-association name="bmw:assigneeApprover3Person" display-label-id="approver3Person" />
+            <show-property name="bmw:externalReviewerEmail" display-label-id="externalReviewerEmail" />
+
+            <separator name="sep-3" display-label-id="workItemsHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmw:workTypes" display-label-id="workTypes" />
+            <show-property name="bmw:conceptWorkDueDate" display-label-id="conceptWorkDueDate" />
+            <show-property name="bmw:designWorkDueDate" display-label-id="designWorkDueDate" />
+            <show-property name="bmw:copywriteWorkDueDate" display-label-id="copywriteWorkDueDate" />
+        </property-sheet>
+    </config>
+
+    <config evaluator="node-type" condition="bmw:P00_ValidateMaterialBriefTask">
+        <property-sheet>
+            <separator name="sep-1" display-label-id="jobWorkflowHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmc:campaignId" display-label-id="campaignId" read-only="true"/>
+            <show-property name="bmc:product" display-label-id="product" read-only="true"/>
+            <show-property name="bmc:jobType" display-label-id="jobType" read-only="true"/>
+            <show-property name="bmw:jobStatus" display-label-id="jobStatus" read-only="true"/>
+            <show-property name="bmw:jobFolderLink" display-label-id="jobFolder" read-only="true" component-generator="CustomLinkGenerator"/>
+
+            <separator name="sep-3" display-label-id="workItemsHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmw:workTypes" display-label-id="workTypes" />
+            <show-property name="bmw:conceptWorkDueDate" display-label-id="conceptWorkDueDate" />
+            <show-property name="bmw:designWorkDueDate" display-label-id="designWorkDueDate" />
+            <show-property name="bmw:copywriteWorkDueDate" display-label-id="copywriteWorkDueDate" />
+        </property-sheet>
+    </config>
+
+</alfresco-config>

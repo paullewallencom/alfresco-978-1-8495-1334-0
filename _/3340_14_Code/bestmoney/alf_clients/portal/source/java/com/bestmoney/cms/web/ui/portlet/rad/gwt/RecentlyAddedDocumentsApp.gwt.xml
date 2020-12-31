@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE module PUBLIC "-//Google Inc.//DTD Google Web Toolkit 1.7.0//EN"
+        "http://google-web-toolkit.googlecode.com/svn/tags/1.7.0/distro-source/core/src/gwt-module.dtd">
+<module rename-to='recentlyAddedDocumentsApp'>
+    <!-- Inherit the core GWT stuff. -->
+    <inherits name='com.google.gwt.user.User'/>
+
+    <!-- Inherit the GXT GWT Toolkit library configuration.	  -->
+    <inherits name='com.extjs.gxt.ui.GXT'/>
+
+    <!-- Inherit the default GWT style sheet.  You can change       -->
+    <!-- the theme of your GWT application by uncommenting          -->
+    <!-- any one of the following lines.                            -->
+    <inherits name='com.google.gwt.user.theme.standard.Standard'/>
+    <!-- <inherits name='com.google.gwt.user.theme.chrome.Chrome'/> -->
+    <!-- <inherits name='com.google.gwt.user.theme.dark.Dark'/>     -->
+
+    <!-- Specify the app entry point class.                         -->
+    <entry-point class='com.bestmoney.cms.web.ui.portlet.rad.gwt.client.RecentlyAddedDocumentsApp'/>
+
+    <!-- Setup the Alfresco Repo Service for hosted mode testing
+    <servlet path="/alfrescorepo" class="com.bestmoney.cms.server.AlfrescoRepositoryServiceImpl" />
+    -->
+</module>

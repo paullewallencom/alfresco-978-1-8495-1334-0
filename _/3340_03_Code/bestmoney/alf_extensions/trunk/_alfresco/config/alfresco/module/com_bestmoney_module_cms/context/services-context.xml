@@ -1,0 +1,59 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+
+    <!-- The services-context.xml file is used to define beans for any new 
+		 module services that we build, event handlers etc.  -->
+
+
+      <!-- Bean that tests different Foundation Service calls -->
+    <bean id="myCmsService"
+          class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="proxyInterfaces">
+            <value>com.bestmoney.test.foundationservice.MyCmsService</value>
+        </property>
+        <property name="target">
+            <bean class="com.bestmoney.test.foundationservice.MyCmsServiceImpl">
+                <property name="nodeService">
+                    <ref bean="nodeService"/>
+                </property>
+                <property name="contentService">
+                    <ref bean="contentService"/>
+                </property>
+                <property name="fileFolderService">
+                    <ref bean="fileFolderService"/>
+                </property>
+                <property name="searchService">
+                    <ref bean="searchService"/>
+                </property>
+                <property name="namespaceService">
+                    <ref bean="namespaceService"/>
+                </property>
+                <property name="permissionService">
+                    <ref bean="permissionService"/>
+                </property>
+                <property name="dictionaryService">
+                    <ref bean="dictionaryService"/>
+                </property>
+                <!-- Property is set in Alfresco config files to app:company_home -->
+                <property name="companyHomeChildname" value="${spaces.company_home.childname}"/>
+            </bean>
+        </property>
+        <property name="transactionAttributeSource">
+            <bean class="org.springframework.transaction.annotation.AnnotationTransactionAttributeSource"/>
+        </property>
+    </bean>
+
+    <!-- Web Script that is used to execute the Foundation Service tests -->
+    <bean id="webscript.com.bestmoney.test.foundationservice.testfs.get"
+          class="com.bestmoney.test.foundationservice.TestFoundationServicesWebScript"
+          parent="webscript">
+        <property name="myCmsService">
+            <ref bean="myCmsService"/>
+        </property>
+    </bean>
+
+</beans>

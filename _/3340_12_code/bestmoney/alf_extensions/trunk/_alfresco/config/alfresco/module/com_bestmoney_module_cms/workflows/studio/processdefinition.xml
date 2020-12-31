@@ -1,0 +1,311 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition xmlns="urn:jbpm.org:jpdl-3.2" name="bmw:studioProcess">
+
+    <!--
+         Assignees
+         -->
+
+    <swimlane name="jobOwner">
+        <assignment class="org.alfresco.repo.workflow.jbpm.AlfrescoAssignment">
+            <actor>#{jobOwner}</actor>
+        </assignment>
+    </swimlane>
+
+    <swimlane name="studioTeamManagers">
+        <assignment class="org.alfresco.repo.workflow.jbpm.AlfrescoAssignment">
+            <pooledactors>#{people.getGroup(studioTeamMgrsGroupName)}</pooledactors>
+        </assignment>
+    </swimlane>
+    
+    <!--
+        Workflow starts
+        -->
+
+    <start-state name="Start">
+        <transition to="ConceptWork?"></transition>
+        <event type="node-leave">
+            <script>
+                <!-- Set process id for parent process to use -->
+                <!-- Note. cannot use event "node-enter", it gives null id -->
+                <expression>
+                    var procId = executionContext.processInstance.getId();
+                    executionContext.setVariable("procId", procId);
+                </expression>
+            </script>
+        </event>
+	</start-state>
+
+    <decision name="ConceptWork?">
+        <description>
+            Note. The default transition "no" has to be first in this decision node
+            otherwise the condition will always evaluate to true.
+        </description>
+        <transition to="fork1" name="no"></transition>
+		<transition to="P01_SetConceptPriorityAndAssignDesignerOrCopywriter" name="yes">
+            <condition>#{conceptWork == true}</condition>
+		</transition>
+	</decision>
+
+	<task-node name="P01_SetConceptPriorityAndAssignDesignerOrCopywriter">
+        <task name="bmw:P01_SetConceptPriorityAndAssignDesignerOrCopywriterTask" swimlane="studioTeamManagers">
+            <event type="task-create">
+                <action class="org.alfresco.repo.workflow.jbpm.AlfrescoJavaScript">
+                    <script>
+                        <variable name="bmw_conceptWorkDueDate" access="read"/>
+                        <expression>
+                            <!-- Need to set dueDate for task instance so it is displayed in task lists -->
+                            if (bmw_conceptWorkDueDate != null) taskInstance.dueDate = bmw_conceptWorkDueDate;
+                        </expression>
+                    </script>
+                </action>
+            </event>
+        </task>
+        <transition to="StartConceptWork"></transition>
+	</task-node>
+
+    <node name="StartConceptWork">
+    	<!--  action has to be first in node definition -->
+        <action class="org.alfresco.repo.workflow.jbpm.ForEachFork">
+            <foreach>#{bpm_assignees}</foreach>
+            <var>bpm_assignee</var>
+        </action>
+        <description>
+            Kick off the Generic work process for each selected Studio worker.
+        </description>
+        <transition to="GenericWorkConcept" />
+    </node>
+
+	<process-state name="GenericWorkConcept">
+		<sub-process name="bmw:workProcess"/>
+
+        <event type="node-enter">
+            <script>
+                <!-- Setup a variable with the specific work type so we can pass to
+                     sub-process -->
+                <variable name="bmw_workType" access="write"/>
+                <expression>
+                    bmw_workType = "Concept";
+                </expression>
+            </script>
+        </event>
+
+        <!-- outbound properties (set in subprocess)
+            mapped-name means property have different name in sub-process
+        -->
+        <variable name="studioConceptWorkProcId" access="write" mapped-name="procId"/>     <!-- Store subprocess id so we can query with it later -->
+
+        <!-- inbound properties (passed into sub-process)
+            mapped-name means property have different name in sub-process
+            (Note. they will only be passed into sub-process if they are not null)
+        -->
+        <variable name="bmc_campaignId" access="read" />
+        <variable name="bmc_product" access="read" />
+        <variable name="bmc_jobType" access="read" />
+        <variable name="bmw_jobStatus" access="read"/>
+        <variable name="bmw_workTypes" access="read" />
+        <variable name="bmw_jobFolderLink" access="read"/>
+        <variable name="bmw_workType" access="read" />
+        <variable name="bmw_conceptWorkDueDate" access="read" mapped-name="bpm_dueDate"/>
+        <variable name="bpm_package" access="read"/>
+        <variable name="bpm_assignee" access="read"/>
+        <variable name="bpm_priority" access="read"/>
+        <variable name="jobOwner" access="read"/>
+        <variable name="studioTeamMgrsGroupName" access="read"/>
+
+        <!-- Some properties are passed in to the sub-process even if they are not used or displayed,
+            this is necessary when the property is defined as mandatory in the content model.
+            Mandatory properties will be checked when a task is completed in a sub-process .
+            -->
+        <variable name="bmw_briefSignOffCategory" access="read"/>
+        <variable name="bmw_productionSignOffCategory" access="read"/>
+        <variable name="bmw_assigneeApprover3Person" access="read"/>
+        <variable name="bmw_externalReviewerEmail" access="read"/>
+
+        <!-- These variables are not needed in the sub-process but we
+             need them for reporting via SQL query -->
+        <variable name="studioBrief" access="read"/>
+
+		<transition to="joinConceptWorkers"></transition>
+	</process-state>
+
+    <join name="joinConceptWorkers">
+        <description>
+            Wait for all Studio workers to finish their Concept work.
+        </description>
+        <transition to="fork1"></transition>
+    </join>
+    
+	<decision name="CopyWork?">
+        <description>
+            Note. The default transition "no" has to be first in this decision node
+            otherwise the condition will always evaluate to true.
+        </description>
+        <transition to="join1" name="no"></transition>
+		<transition to="P02_SetCopyPriorityAndAssignCopywriter" name="yes">
+            <condition>#{copyWork == true}</condition>
+		</transition>
+	</decision>
+
+	<decision name="DesignWork?">
+        <description>
+            Note. The default transition "no" has to be first in this decision node
+            otherwise the condition will always evaluate to true.
+        </description>
+        <transition to="join1" name="no"></transition>
+		<transition to="P03_SetDesignPriorityAndAssignDesigner" name="yes">
+            <condition>#{designWork == true}</condition>
+		</transition>
+	</decision>
+
+	<fork name="fork1">
+		<transition to="CopyWork?"></transition>
+		<transition to="DesignWork?" name="to DesignWork?"></transition>
+	</fork>
+
+	<task-node name="P02_SetCopyPriorityAndAssignCopywriter">
+        <task name="bmw:P02_SetCopyPriorityAndAssignCopywriterTask" swimlane="studioTeamManagers">
+            <event type="task-create">
+                <action class="org.alfresco.repo.workflow.jbpm.AlfrescoJavaScript">
+                    <script>
+                        <variable name="bmw_copywriteWorkDueDate" access="read"/>
+                        <expression>
+                            if (bmw_copywriteWorkDueDate != null) taskInstance.dueDate = bmw_copywriteWorkDueDate;
+                        </expression>
+                    </script>
+                </action>
+            </event>
+        </task>
+		<transition to="GenericWorkCopy"></transition>
+	</task-node>
+
+	<task-node name="P03_SetDesignPriorityAndAssignDesigner">
+        <task name="bmw:P03_SetDesignPriorityAndAssignDesignerTask" swimlane="studioTeamManagers">
+            <event type="task-create">
+                <action class="org.alfresco.repo.workflow.jbpm.AlfrescoJavaScript">
+                    <script>
+                        <variable name="bmw_designWorkDueDate" access="read"/>
+                        <expression>
+                            if (bmw_designWorkDueDate != null) taskInstance.dueDate = bmw_designWorkDueDate;
+                        </expression>
+                    </script>
+                </action>
+            </event>
+        </task>
+		<transition to="GenericWorkDesign"></transition>
+	</task-node>
+
+	<process-state name="GenericWorkCopy">
+        <sub-process name="bmw:workProcess"/>
+
+        <event type="node-enter">
+            <script>
+                <!-- Setup a variable with the specific work type so we can pass to
+                     sub-process -->
+                <variable name="bmw_workType" access="write"/>
+                <expression>
+                    bmw_workType = "Copy";
+                </expression>
+            </script>
+        </event>
+
+        <!-- outbound properties (set in sub-process)
+            mapped-name means property have different name in sub-process
+        -->
+        <variable name="studioCopyWorkProcId" access="write" mapped-name="procId"/>     <!-- Store subprocess id so we can query with it later -->
+
+        <!-- inbound properties (passed into sub-process)
+            mapped-name means property have different name in sub-process
+            (Note. they will only be passed into sub-process if they are not null)
+        -->
+        <variable name="bmc_campaignId" access="read" />
+        <variable name="bmc_product" access="read" />
+        <variable name="bmc_jobType" access="read" />
+        <variable name="bmw_jobStatus" access="read"/>
+        <variable name="bmw_workTypes" access="read" />
+        <variable name="bmw_jobFolderLink" access="read"/>
+        <variable name="bmw_workType" access="read" />
+        <variable name="bmw_copywriteWorkDueDate" access="read" mapped-name="bpm_dueDate"/>
+        <variable name="bmw_assigneeCopywriter" access="read" mapped-name="bpm_assignee"/>
+        <variable name="bpm_package" access="read"/>
+        <variable name="bpm_priority" access="read"/>
+        <variable name="jobOwner" access="read"/>
+        <variable name="studioTeamMgrsGroupName" access="read"/>
+
+        <!-- Some properties are passed in to the sub-process even if they are not used or displayed,
+            this is necessary when the property is defined as mandatory in the content model.
+            Mandatory properties will be checked when a task is completed in a sub-process .
+            -->
+        <variable name="bmw_briefSignOffCategory" access="read"/>
+        <variable name="bmw_productionSignOffCategory" access="read"/>
+        <variable name="bmw_assigneeApprover3Person" access="read"/>
+        <variable name="bmw_externalReviewerEmail" access="read"/>
+
+        <!-- These variables are not needed in the sub-process but we need them for reporting via SQL query -->
+        <variable name="studioBrief" access="read"/>
+
+		<transition to="join1"></transition>
+	</process-state>
+
+	<process-state name="GenericWorkDesign">
+        <sub-process name="bmw:workProcess"/>
+
+        <event type="node-enter">
+            <script>
+                <!-- Setup a variable with the specific work type so we can pass to
+                     sub-process -->
+                <variable name="bmw_workType" access="write"/>
+                <expression>
+                    bmw_workType = "Design";
+                </expression>
+            </script>
+        </event>
+
+        <!-- outbound properties (set in subprocess) -->
+        <variable name="studioDesignWorkProcId" access="write" mapped-name="procId"/>     <!-- Store subprocess id so we can query with it later -->
+
+        <!-- inbound properties (passed into sub-process)
+            mapped-name means property have different name in sub-process
+            (Note. they will only be passed into sub-process if they are not null)
+        -->
+        <variable name="bmc_campaignId" access="read" />
+        <variable name="bmc_product" access="read" />
+        <variable name="bmc_jobType" access="read" />
+        <variable name="bmw_jobStatus" access="read"/>
+        <variable name="bmw_workTypes" access="read" />
+        <variable name="bmw_jobFolderLink" access="read"/> 
+        <variable name="bmw_workType" access="read" />
+        <variable name="bmw_designWorkDueDate" access="read" mapped-name="bpm_dueDate"/>
+        <variable name="bmw_assigneeDesigner" access="read" mapped-name="bpm_assignee"/>
+        <variable name="bpm_package" access="read"/>
+        <variable name="bpm_priority" access="read"/>
+        <variable name="jobOwner" access="read"/>
+        <variable name="studioTeamMgrsGroupName" access="read"/>
+
+        <!-- Some properties are passed in to the sub-process even if they are not used or displayed,
+            this is necessary when the property is defined as mandatory in the content model.
+            Mandatory properties will be checked when a task is completed in a sub-process .
+            -->
+        <variable name="bmw_briefSignOffCategory" access="read"/>
+        <variable name="bmw_productionSignOffCategory" access="read"/>
+        <variable name="bmw_assigneeApprover3Person" access="read"/>
+        <variable name="bmw_externalReviewerEmail" access="read"/>
+
+        <!-- These variables are not needed in the sub-process but we need them for reporting via SQL query -->
+        <variable name="studioBrief" access="read"/>
+
+		<transition to="join1"></transition>
+	</process-state>
+
+	<task-node name="P04_ApproveWorkAsCompleteAndOutOfStudio">
+        <task name="bmw:P04_ApproveWorkAsCompleteAndOutOfStudioTask" swimlane="studioTeamManagers"></task>
+		<transition to="end"></transition>
+	</task-node>
+
+	<join name="join1">
+		<transition to="P04_ApproveWorkAsCompleteAndOutOfStudio"></transition>
+	</join>
+
+	<end-state name="end"></end-state>
+
+</process-definition>

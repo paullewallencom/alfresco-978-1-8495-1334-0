@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>External Sign-off</shortname>
+    <description>External sign-off via email of produced material</description>
+    <url>/bestmoney/marketing/bpm/signoff?id={argument}&amp;action={transArgument}</url>
+    <format default="html">extension</format>
+    <authentication>guest</authentication>
+    <transaction>none</transaction>
+</webscript>

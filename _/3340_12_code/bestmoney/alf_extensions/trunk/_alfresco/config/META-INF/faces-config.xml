@@ -1,0 +1,57 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE faces-config PUBLIC "-//Sun Microsystems, Inc.//DTD JavaServer Faces Config 1.1//EN"
+        "http://java.sun.com/dtd/web-facesconfig_1_1.dtd">
+<faces-config>
+
+ <!-- Any custom JSF managed beans go here -->
+
+    <managed-bean>
+        <description>
+            A custom link generator that will display a link even in edit mode.
+            Extends the Alfresco LinkGenerator.
+        </description>
+        <managed-bean-name>CustomLinkGenerator</managed-bean-name>
+        <managed-bean-class>com.bestmoney.cms.web.ui.component.generator.CustomLinkGenerator</managed-bean-class>
+        <managed-bean-scope>request</managed-bean-scope>
+    </managed-bean>
+
+    <managed-bean>
+        <description>
+            UI Backing bean for the "All Assigned Tasks" Dashlet and
+            the "All Job Workflows" Dashlet.
+        </description>
+        <managed-bean-name>CustomWorkflowBean</managed-bean-name>
+        <managed-bean-class>com.bestmoney.cms.workflow.bean.CustomWorkflowBean</managed-bean-class>
+        <managed-bean-scope>session</managed-bean-scope>
+        <managed-property>
+            <property-name>navigationBean</property-name>
+            <value>#{NavigationBean}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>nodeService</property-name>
+            <value>#{NodeService}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>authenticationService</property-name>
+            <value>#{AuthenticationService}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>authorityService</property-name>
+            <value>#{AuthorityService}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>searchService</property-name>
+            <value>#{SearchService}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>workflowService</property-name>
+            <value>#{WorkflowService}</value>
+        </managed-property>
+        <managed-property>
+            <property-name>dataSource</property-name>
+            <value>#{dataSource}</value>
+        </managed-property>
+    </managed-bean>
+    
+
+</faces-config>

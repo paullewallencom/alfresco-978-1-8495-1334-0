@@ -1,0 +1,67 @@
+<alfresco-config>
+
+ <!--
+    Used for customizations of the Alfresco Share web client.
+    We can customize for example search term minimum and maximum length,
+    username minimum length etc.
+    -->
+
+  <config evaluator="string-compare" condition="DocumentLibrary" replace="true">
+
+      <aspects>
+         <!-- Aspects that a user can see -->
+         <visible>
+            <aspect name="cm:generalclassifiable" />
+            <aspect name="cm:complianceable" />
+            <aspect name="cm:dublincore" />
+            <aspect name="cm:effectivity" />
+            <aspect name="cm:summarizable" />
+            <aspect name="cm:versionable" />
+            <aspect name="cm:templatable" />
+            <aspect name="cm:emailed" />
+            <aspect name="emailserver:aliasable" />
+            <aspect name="cm:taggable" />
+            <aspect name="app:inlineeditable" />
+            <aspect name="bmc:reviewable" />
+         </visible>
+
+         <!-- Aspects that a user can add. Same as "visible" if left empty -->
+         <addable>
+         </addable>
+
+         <!-- Aspects that a user can remove. Same as "visible" if left empty -->
+         <removeable>
+         </removeable>
+      </aspects>
+
+
+      <types>
+         <type name="cm:content">
+            <subtype name="bmc:document" />
+         </type>
+      </types>
+
+   </config>
+   
+   <!-- Repository Library config section -->
+   <config evaluator="string-compare" condition="RepositoryLibrary" replace="true">
+      <!--
+         Whether the link to the Repository Library appears in the header component or not.
+      -->
+      <visible>true</visible>
+
+      <!--
+         Root nodeRef for top-level folder.
+      -->
+      <root-node>alfresco://company/home</root-node>
+
+      <!--
+         Whether the folder Tree component should enumerate child folders or not.
+         This is a relatively expensive operation, so should be set to "false" for Repositories with broad folder structures.
+      -->
+      <tree>
+         <evaluate-child-folders>false</evaluate-child-folders>
+      </tree>
+   </config>
+    
+</alfresco-config>

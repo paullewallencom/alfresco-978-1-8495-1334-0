@@ -1,0 +1,106 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <!-- The bootstrap-context.xml file is used for patch definitions, importers, 
+		 message loaders, loading custom web client configuration, 
+		 and loading custom content models.  -->
+
+
+    <bean id="com.bestmoney.bootstrapExtraBundlesBean" class="org.alfresco.web.app.ResourceBundleBootstrap">
+        <property name="resourceBundles">
+            <list>
+                <value>alfresco.module.com_bestmoney_module_cms.messages.model-messages</value>
+                <value>alfresco.module.com_bestmoney_module_cms.messages.patch-messages</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- Registration of new models -->
+    <bean id="com.bestmoney.dictionaryBootstrap" parent="dictionaryModelBootstrap" depends-on="dictionaryBootstrap">
+        <property name="models">
+            <list>
+                <value>alfresco/module/com_bestmoney_module_cms/model/content-model.xml</value>
+                <value>alfresco/module/com_bestmoney_module_cms/model/workflow-model.xml</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--
+    Bootstrap custom UI configuration
+    -->
+    <bean id="com.bestmoney.webclient.configBootstrap" class="org.alfresco.web.config.WebClientConfigBootstrap"
+          init-method="init">
+        <property name="configs">
+            <list>
+                <value>classpath:alfresco/module/com_bestmoney_module_cms/ui/web-client-config-custom.xml</value>
+                <value>classpath:alfresco/module/com_bestmoney_module_cms/ui/web-client-config-work-workflow.xml</value>
+                <value>classpath:alfresco/module/com_bestmoney_module_cms/ui/web-client-config-studio-workflow.xml</value>
+                <value>classpath:alfresco/module/com_bestmoney_module_cms/ui/web-client-config-signoff-workflow.xml</value>
+                <value>classpath:alfresco/module/com_bestmoney_module_cms/ui/web-client-config-job-workflow.xml</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--
+    Bootstrap UI label properties
+    -->
+    <bean id="com.bestmoney.webclient.properties.webResourceBundles"
+          class="org.alfresco.web.app.ResourceBundleBootstrap">
+        <property name="resourceBundles">
+            <list>
+                <value>alfresco.module.com_bestmoney_module_cms.ui.webclient</value>
+                <value>alfresco.module.com_bestmoney_module_cms.ui.webclient-workflow</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--
+        Bootstrap label properties for the Marketing Workflows
+        -->
+    <bean id="com.bestmoney.marketing.properties.workflowBootstrap" parent="workflowDeployer">
+        <property name="labels">
+            <list>
+                <value>alfresco.module.com_bestmoney_module_cms.ui.labels-work-workflow</value>
+                <value>alfresco.module.com_bestmoney_module_cms.ui.labels-studio-workflow</value>
+                <value>alfresco.module.com_bestmoney_module_cms.ui.labels-signoff-workflow</value>
+                <value>alfresco.module.com_bestmoney_module_cms.ui.labels-job-workflow</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--
+           Bootstrap email template used by sign-off process.
+           Loading the signoff-rework-email.ftl template into the repository
+           (i.e. into the /Company Home/Data Dictionary/Email Templates/Best Money/Marketing)
+           -->
+    <bean id="com.bestmoney.cms.bootstrapEmailTemplates"
+          class="org.alfresco.repo.module.ImporterModuleComponent" parent="module.baseComponent">
+        <property name="moduleId" value="com_bestmoney_module_cms"/>
+        <property name="name" value="com.bestmoney.cms.bootstrapEmailTemplates"/>
+        <property name="description" value="Initial email template requirements"/>
+        <property name="sinceVersion" value="1.0"/>
+        <property name="appliesFromVersion" value="1.0"/>
+        <!-- Data properties -->
+        <property name="importer" ref="spacesBootstrap"/>
+        <property name="bootstrapViews">
+            <list>
+                <props>
+                    <prop key="path">
+                        <!--  XPATH = /app:company_home/app:dictionary/app:email_templates/cm:Best_x0020_Money/cm:Marketing
+                         The Best Money/Marketing spaces has to exist.
+                        -->
+                        /${spaces.company_home.childname}/${spaces.dictionary.childname}/${spaces.templates.email.childname}/cm:Best_x0020_Money/cm:Marketing
+                    </prop>
+                    <prop key="location">
+                        alfresco/module/com_bestmoney_module_cms/bootstrap/signoff-rework-email-template.xml
+                    </prop>
+                </props>
+            </list>
+        </property>
+    </bean>
+
+
+</beans>

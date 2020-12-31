@@ -1,0 +1,64 @@
+<webscript>
+    <shortname>Get a list of children for a folder</shortname>
+    <description>
+<![CDATA[
+Gets the list of child objects contained in the specified folder.
+Only the filter-selected properties (metadata) associated with each object are returned.
+The content-streams of documents are not returned.
+<br>
+<br>
+Inputs:<br>
+<br>
+path: the path to the folder we want to get children for (e.g. /Company Home)
+<br>
+(Optional) Enum store_type: workspace (default)<br>
+(Optional) Enum store_id: SpacesStore (default)<br>
+(Optional) Enum types: Documents, Folders, Policies, Any (default) - comma separated list<br>
+(Optional) String filter: Filter specifying which properties to return - comma separated list.<br>
+(Optional) Boolean includeAllowableActions: False (default)<br>
+(Optional) Enum includeRelationships: none (default), source, target, both - comma separated list.<br>
+(Optional) int offset: 0 = return from first item (Default)<br>
+(Optional) int limit: 25 = return 25 items <br>
+(Optional) String sorting: property to sort by, example ‘name DESC’.<br>
+<br>
+Outputs:<br>
+<br>
+A list of folders and/or documents with properties according to "filter" and list size according to "offset" and "limit".<br>
+<br>
+Notes:<br>
+<br>
+Between invocations the order of the results may change due to repository state changing.
+<br>
+When returning the results of a call where the caller specified “Any” type,
+the repository SHOULD return all folder objects first followed by other objects.
+<br>
+If “includeAllowableActions” is TRUE, the repository will return the allowable actions
+for the current user for each child object as part of the output.
+<br>
+"includeRelationships" indicates whether relationships are also returned for each returned object.
+If it is set to "source" or "target", relationships for which the returned object is a source,
+or respectively a target, will also be returned.
+If it is set to "both", relationships for which the returned object is either a source or a target will be returned.
+If it is set to "none", relationships are not returned.
+<br>
+If no “limit” value is provided, then the Repository will determine an appropriate number of items to return.
+<br>
+Examples:<br>
+<br>
+Get all folders under Company Home (path defaults to /Company Home if it is not specified):<br>
+http://localhost:8080/alfresco/service/bestmoney/children?path=/Company%20Home&types=Folders<br>
+http://localhost:8080/alfresco/service/bestmoney/children?types=Folders<br>
+<br>
+Get all folders and documents under /Company Home/Data Dictionary and return only 50 items:<br>
+http://localhost:8080/alfresco/service/bestmoney/children?types=Folders,Documents&path=/Company%20Home/Data%20Dictionary&offset=0&limit=50&sorting=null
+<br>
+Or if you want to specify a store:<br>
+http://localhost:8080/alfresco/service/bestmoney/children?store_type=workspace&store_id=SpacesStore&path=/Company%20Home&types=Folders&filter={name}
+]]>
+    </description>
+    <url>/bestmoney/children?store_type={store_type}&amp;store_id={store_id}&amp;path={path}&amp;types={types}&amp;filter={filter}&amp;offset={offset}&amp;limit={limit}&amp;includeAllowableActions={includeAllowableActions}</url>
+    <authentication>guest</authentication>
+    <transaction allow="readonly"/>
+    <format default="json">argument</format>
+    <family>Repository</family>
+</webscript>

@@ -1,0 +1,282 @@
+<alfresco-config>
+
+    <!--
+        Used for customizations of the Alfresco Share web client.
+        We can customize for example search term minimum and maximum length,
+        username minimum length etc.
+    -->
+
+    <config evaluator="string-compare" condition="DocumentLibrary"
+            replace="true">
+        <aspects>
+            <!-- Aspects that a user can see -->
+            <visible>
+                <aspect name="cm:generalclassifiable"/>
+                <aspect name="cm:complianceable"/>
+                <aspect name="cm:dublincore"/>
+                <aspect name="cm:effectivity"/>
+                <aspect name="cm:summarizable"/>
+                <aspect name="cm:versionable"/>
+                <aspect name="cm:templatable"/>
+                <aspect name="cm:emailed"/>
+                <aspect name="emailserver:aliasable"/>
+                <aspect name="cm:taggable"/>
+                <aspect name="app:inlineeditable"/>
+
+                <!-- See _share/config/alfresco/messages/extension-app.properties for label definitions -->
+                <aspect name="bmc:documentData"/>
+                <aspect name="bmc:meetingData"/>
+                <aspect name="bmc:reviewable"/>
+            </visible>
+
+            <!-- Aspects that a user can add. Same as "visible" if left empty -->
+            <addable>
+            </addable>
+
+            <!-- Aspects that a user can remove. Same as "visible" if left empty -->
+            <removeable>
+            </removeable>
+        </aspects>
+
+        <types>
+            <!-- See _share/config/alfresco/messages/extension-app.properties for label definitions -->
+            <type name="cm:content">
+                <subtype name="bmc:document"/>
+            </type>
+            <type name="bmc:document">
+                <subtype name="bmc:meeting"/>
+                <subtype name="bmc:circular"/>
+                <subtype name="bmc:financeDoc"/>
+                <subtype name="bmc:marketingDoc"/>
+                <subtype name="bmc:legalDoc"/>
+                <subtype name="bmc:itDoc"/>
+                <subtype name="bmc:prDoc"/>
+            </type>
+        </types>
+    </config>
+
+    <!-- Repository Library config section -->
+    <config evaluator="string-compare" condition="RepositoryLibrary" replace="true">
+        <!--
+           Whether the link to the Repository Library appears in the header component or not.
+        -->
+        <visible>true</visible>
+
+        <!--
+           Root nodeRef for top-level folder.
+        -->
+        <root-node>alfresco://company/home</root-node>
+
+        <!--
+           Whether the folder Tree component should enumerate child folders or not.
+           This is a relatively expensive operation, so should be set to "false" for Repositories with broad folder structures.
+        -->
+        <tree>
+            <evaluate-child-folders>false</evaluate-child-folders>
+        </tree>
+    </config>
+
+    <!--
+        View and Edit screen configuration
+        -->
+    <config evaluator="node-type" condition="bmc:meeting">
+        <forms>
+            <form>
+                <field-visibility>
+                    <!-- cm:content data -->
+                    <show id="cm:name"/>
+                    <show id="cm:title" force="true"/>
+                    <show id="cm:description" force="true"/>
+                    <show id="mimetype"/>
+                    <show id="cm:author" force="true"/>
+                    <show id="size" for-mode="view"/>
+                    <show id="cm:creator" for-mode="view"/>
+                    <show id="cm:created" for-mode="view"/>
+                    <show id="cm:modifier" for-mode="view"/>
+                    <show id="cm:modified" for-mode="view"/>
+
+                    <!-- bmc:meeting data -->
+                    <show id="bmc:countries"/>
+                    <show id="bmc:departments"/>
+                    <show id="bmc:language"/>
+                    <show id="bmc:meetingCode"/>
+                </field-visibility>
+                <appearance>
+                    <field id="cm:title">
+                        <control template="/org/alfresco/components/form/controls/textfield.ftl"/>
+                    </field>
+                    <field id="cm:description">
+                        <control>
+                            <control-param name="activateLinks">true</control-param>
+                        </control>
+                    </field>
+                    <field id="mimetype">
+                        <control template="/org/alfresco/components/form/controls/mimetype.ftl"/>
+                    </field>
+                    <field id="size">
+                        <control template="/org/alfresco/components/form/controls/size.ftl"/>
+                    </field>
+                    <field id="cm:taggable">
+                        <control>
+                            <control-param name="compactMode">true</control-param>
+                            <control-param name="params">aspect=cm:taggable</control-param>
+                            <control-param name="createNewItemUri">/api/tag/workspace/SpacesStore</control-param>
+                            <control-param name="createNewItemIcon">tag</control-param>
+                        </control>
+                    </field>
+                    <field id="cm:categories">
+                        <control>
+                            <control-param name="compactMode">true</control-param>
+                        </control>
+                    </field>
+                    <set id="meetingMetadata" appearance="bordered-panel" label-id="meeting.metadata.header"/>
+                    <field id="bmc:countries" label-id="meeting.metadata.countries" set="meetingMetadata"/>
+                    <field id="bmc:departments" label-id="meeting.metadata.departments" set="meetingMetadata"/>
+                    <field id="bmc:language" label-id="meeting.metadata.language" set="meetingMetadata"/>
+                    <field id="bmc:meetingCode" label-id="meeting.metadata.meetingCode" set="meetingMetadata"/>
+                </appearance>
+            </form>
+        </forms>
+    </config>
+
+    <!--
+        Create screen configuration
+        -->
+    <config evaluator="model-type" condition="cm:content">
+        <forms>
+            <form>
+                <field-visibility>
+                    <!-- cm:content data -->
+                    <show id="cm:name"/>
+                    <show id="cm:title" force="true"/>
+                    <show id="cm:description" force="true"/>
+                    <show id="cm:content" force="true"/>
+                    <show id="mimetype"/>
+                    <show id="app:editInline" force="true"/>
+
+                    <!-- bmc:meeting data -->
+                    <show id="bmc:countries" force="true"/>
+                    <show id="bmc:departments" force="true"/>
+                    <show id="bmc:language" force="true"/>
+                    <show id="bmc:meetingCode" force="true"/>
+                </field-visibility>
+                <appearance>
+                    <field id="cm:title">
+                        <control template="/org/alfresco/components/form/controls/textfield.ftl"/>
+                    </field>
+                    <field id="cm:content">
+                        <control>
+                            <control-param name="editorAppearance">explorer</control-param>
+                        </control>
+                    </field>
+                    <field id="mimetype">
+                        <control template="/org/alfresco/components/form/controls/hidden.ftl">
+                            <control-param name="contextProperty">mimeType</control-param>
+                        </control>
+                    </field>
+                    <field id="app:editInline">
+                        <control template="/org/alfresco/components/form/controls/hidden.ftl">
+                            <control-param name="contextProperty">editInline</control-param>
+                        </control>
+                    </field>
+                    <set id="meetingMetadata" appearance="bordered-panel" label-id="meeting.metadata.header"/>
+                    <field id="bmc:countries" label-id="meeting.metadata.countries" set="meetingMetadata"/>
+                    <field id="bmc:departments" label-id="meeting.metadata.departments" set="meetingMetadata"/>
+                    <field id="bmc:language" label-id="meeting.metadata.language" set="meetingMetadata"/>
+                    <field id="bmc:meetingCode" label-id="meeting.metadata.meetingCode" set="meetingMetadata"/>
+                </appearance>
+            </form>
+            <form id="search">
+                <field-visibility>
+                    <show id="cm:name"/>
+                    <show id="cm:title" force="true"/>
+                    <show id="cm:description" force="true"/>
+                    <show id="mimetype"/>
+                    <show id="cm:modified"/>
+                    <show id="cm:modifier"/>
+                    <!-- bmc:meeting data -->
+                    <show id="bmc:countries" force="true"/>
+                    <show id="bmc:departments" force="true"/>
+                    <show id="bmc:language" force="true"/>
+                    <show id="bmc:meetingCode" force="true"/>
+                </field-visibility>
+                <appearance>
+                    <field id="mimetype">
+                        <control template="/org/alfresco/components/form/controls/mimetype.ftl"/>
+                    </field>
+                    <field id="cm:modifier">
+                        <control>
+                            <control-param name="forceEditable">true</control-param>
+                        </control>
+                    </field>
+                    <field id="cm:modified">
+                        <control template="/org/alfresco/components/form/controls/daterange.ftl"/>
+                    </field>
+                    <set id="meetingMetadata" appearance="bordered-panel" label-id="meeting.metadata.header"/>
+                    <field id="bmc:countries" label-id="meeting.metadata.countries" set="meetingMetadata"/>
+                    <field id="bmc:departments" label-id="meeting.metadata.departments" set="meetingMetadata"/>
+                    <field id="bmc:language" label-id="meeting.metadata.language" set="meetingMetadata"/>
+                    <field id="bmc:meetingCode" label-id="meeting.metadata.meetingCode" set="meetingMetadata"/>
+                </appearance>
+            </form>
+        </forms>
+    </config>
+
+    <!--
+        Workflow Task Forms
+        -->
+
+      <!-- See _share/config/alfresco/messages/extension-app.properties for label definitions -->
+
+      <config evaluator="task-type" condition="bmw:W01_ProduceWorkTask">
+          <forms>
+              <form>
+                  <field-visibility>
+                      <show id="bmc:campaignId"/>
+                      <show id="bmc:product"/>
+                      <show id="bmc:jobType"/>
+                      <show id="bmw:jobStatus"/>
+                      <show id="bmw:workType"/>
+                      <show id="bpm:priority"/>
+                      <show id="bpm:dueDate"/>
+
+                      <show id="message"/>
+                      <show id="packageItems"/>
+                      <show id="transitions"/>
+                  </field-visibility>
+                  <appearance>
+                      <!-- Field sets -->
+                      <set id="" appearance="title" label-id="workflow.set.task.info"/>
+                      <set id="jobWorkflowHeader" appearance="title" label-id="jobWorkflowHeader"
+                           template="/org/alfresco/components/form/2-column-set.ftl"/>
+                      <set id="workAndPriorityHeader" appearance="title" label-id="workAndPriorityHeader"/>
+                      <set id="documents" appearance="title" label="Documents"/>
+                      <set id="response" appearance="title" label-id="workflow.set.response"/>
+
+                      <!-- Field set "" -->
+                      <field id="message">
+                          <control template="/org/alfresco/components/form/controls/info.ftl"/>
+                      </field>
+
+                      <!-- Field set "jobWorkflowHeader" -->
+                      <field id="bmc:campaignId" label-id="campaignId" set="jobWorkflowHeader" read-only="true"/>
+                      <field id="bmc:product" label-id="product" set="jobWorkflowHeader" read-only="true"/>
+                      <field id="bmc:jobType" label-id="jobType" set="jobWorkflowHeader" read-only="true"/>
+                      <field id="bmw:jobStatus" label-id="jobStatus" set="jobWorkflowHeader" read-only="true"/>
+
+                      <!-- Field set "workAndPriorityHeader" -->
+                      <field id="bmw:workType" label-id="workType" set="workAndPriorityHeader" read-only="true"/>
+                      <field id="bpm:priority" label-id="workPriority" set="workAndPriorityHeader"/>
+                      <field id="bpm:dueDate" label-id="workDueDate" set="workAndPriorityHeader"/>
+
+                      <!-- Field set "documents" -->
+                      <field id="packageItems" set="documents"/>
+
+                      <!-- Field set "response" -->
+                      <field id="transitions" set="response"/>
+                  </appearance>
+              </form>
+          </forms>
+      </config>
+
+</alfresco-config>

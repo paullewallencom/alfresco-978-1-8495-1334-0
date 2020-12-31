@@ -1,0 +1,167 @@
+<!--
+    Best Money Web Client Customizations
+    -->
+
+<alfresco-config>
+    <!-- Fix Google like search with implicit AND between search terms instead of OR as default -->
+    <config>
+        <client>
+            <search-and-terms>true</search-and-terms>
+        </client>
+    </config>
+
+    <!-- Change from icons view to details view and show 25 items per page -->
+    <config evaluator="string-compare" condition="Views">
+        <views>
+            <view-defaults>
+                <browse>
+                    <view>details</view>
+                    <page-size>
+                        <list>10</list>
+                        <details>25</details>
+                        <icons>10</icons>
+                    </page-size>
+                </browse>
+            </view-defaults>
+        </views>
+    </config>
+
+    <!-- Property Sheet definitions -->
+    <config evaluator="aspect-name" condition="bmc:documentData">
+        <property-sheet>
+            <separator name="sep-1" display-label-id="bmDocumentDataHeader"
+                       component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmc:departments" display-label-id="departments"/>
+            <show-property name="bmc:language" display-label-id="language"/>
+            <show-property name="bmc:countries" display-label-id="countries"/>
+        </property-sheet>
+    </config>
+
+    <config evaluator="aspect-name" condition="bmc:meetingData">
+        <property-sheet>
+            <separator name="sep-1" display-label-id="bmMeetingDataHeader"
+                       component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmc:meetingCode" display-label-id="meetingCode"/>
+        </property-sheet>
+    </config>
+
+    <config evaluator="aspect-name" condition="bmc:reviewable">
+        <property-sheet>
+            <separator name="sep-1"
+                       display-label-id="reviewableHeader"
+                       component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmc:reviewPeriod" display-label-id="reviewPeriod"/>
+            <show-property name="bmc:includeSubFolders" display-label-id="includeSubFolders"/>
+        </property-sheet>
+    </config>
+
+    <config evaluator="aspect-name" condition="bmc:job">
+        <property-sheet>
+            <separator name="sep-1" display-label-id="jobDataHeader"
+                       component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmc:campaignId" display-label-id="campaignId" read-only="true"/>
+            <show-property name="bmc:product" display-label-id="product" read-only="true"/>
+            <show-property name="bmc:jobType" display-label-id="jobType" read-only="true"/>
+        </property-sheet>
+    </config>
+
+    <!-- Add types to Add Content and Create Content wizards -->
+    <config evaluator="string-compare" condition="Content Wizards">
+        <content-types>
+            <type name="bmc:document"/>
+            <type name="bmc:meeting"/>
+            <type name="bmc:circular"/>
+            <type name="bmc:financeDoc"/>
+            <type name="bmc:marketingDoc"/>
+            <type name="bmc:legalDoc"/>
+            <type name="bmc:itDoc"/>
+            <type name="bmc:prDoc"/>
+        </content-types>
+    </config>
+
+    <!-- List the new Types and aspects in the Rules Wizard -->
+    <config evaluator="string-compare" condition="Action Wizards">
+        <aspects>
+            <aspect name="bmc:documentData"/>
+            <aspect name="bmc:meetingData"/>
+            <aspect name="bmc:reviewable"/>
+        </aspects>
+
+        <subtypes>
+            <type name="bmc:document"/>
+            <type name="bmc:meeting"/>
+            <type name="bmc:circular"/>
+            <type name="bmc:financeDoc"/>
+            <type name="bmc:marketingDoc"/>
+            <type name="bmc:legalDoc"/>
+            <type name="bmc:itDoc"/>
+            <type name="bmc:prDoc"/>
+        </subtypes>
+
+        <specialise-types>
+            <type name="bmc:document"/>
+            <type name="bmc:meeting"/>
+            <type name="bmc:circular"/>
+            <type name="bmc:financeDoc"/>
+            <type name="bmc:marketingDoc"/>
+            <type name="bmc:legalDoc"/>
+            <type name="bmc:itDoc"/>
+            <type name="bmc:prDoc"/>
+        </specialise-types>
+    </config>
+
+    <!-- Configure Advanced Search Screen with custom properties -->
+    <config evaluator="string-compare" condition="Advanced Search">
+        <advanced-search>
+            <content-types>
+                <type name="bmc:document"/>
+                <type name="bmc:meeting"/>
+                <type name="bmc:circular"/>
+                <type name="bmc:financeDoc"/>
+                <type name="bmc:marketingDoc"/>
+                <type name="bmc:legalDoc"/>
+                <type name="bmc:itDoc"/>
+                <type name="bmc:prDoc"/>
+            </content-types>
+            <custom-properties>
+                <meta-data aspect="bmc:documentData" property="bmc:departments"/>
+                <meta-data aspect="bmc:documentData" property="bmc:language"/>
+                <meta-data aspect="bmc:documentData" property="bmc:countries"/>
+                <meta-data aspect="bmc:meetingData" property="bmc:meetingCode"/>
+            </custom-properties>
+        </advanced-search>
+    </config>
+
+    <!--
+        Custom Tasks Dashlets
+    -->
+
+    <config evaluator="string-compare" condition="Dashboards">
+        <dashboards>
+            <dashlets>
+                <dashlet id="bestmoney-all-assigned-tasks"
+                         label-id="bestmoney_all_assigned_tasks_title"
+                         description-id="bestmoney_all_assigned_tasks_desc"
+                         jsp="/jsp/bestmoney/dashlet/bestmoney-all-assigned-tasks-dashlet.jsp" allow-narrow="false"/>
+                <dashlet id="bestmoney-all-job-workflows"
+                         label-id="bestmoney-all-job-workflows_title"
+                         description-id="bestmoney-all-job-workflows_desc"
+                         jsp="/jsp/bestmoney/dashlet/bestmoney-all-job-workflows-dashlet.jsp" allow-narrow="false"/>
+                <dashlet id="bestmoney-tasks-todo"
+                         label-id="bestmoney_tasks_todo_title"
+                         description-id="bestmoney_tasks_todo_desc"
+                         jsp="/jsp/bestmoney/dashlet/bestmoney-tasks-todo-dashlet.jsp" allow-narrow="false"/>
+                <dashlet id="bestmoney-pooled-tasks-todo"
+                         label-id="bestmoney_pooled_tasks_todo_title"
+                         description-id="bestmoney_pooled_tasks_todo_desc"
+                         jsp="/jsp/bestmoney/dashlet/bestmoney-pooled-tasks-todo-dashlet.jsp" allow-narrow="false"/>
+                <dashlet id="bestmoney-tasks-completed"
+                         label-id="bestmoney_tasks_completed_title"
+                         description-id="bestmoney_tasks_completed_desc"
+                         jsp="/jsp/bestmoney/dashlet/bestmoney-tasks-completed-dashlet.jsp" allow-narrow="false"/>
+            </dashlets>
+        </dashboards>
+    </config>
+
+
+</alfresco-config>

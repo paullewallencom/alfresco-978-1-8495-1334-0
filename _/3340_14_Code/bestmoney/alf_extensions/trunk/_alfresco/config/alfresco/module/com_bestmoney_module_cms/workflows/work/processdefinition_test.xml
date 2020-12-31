@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<process-definition xmlns="urn:jbpm.org:jpdl-3.2" name="bmw:workProcess">
+
+    <swimlane name="initiator"/>
+
+    <swimlane name="jobOwner">
+        <assignment class="org.alfresco.repo.workflow.jbpm.AlfrescoAssignment">
+            <actor>#{people.getPerson('jobOwner')}</actor>
+        </assignment>
+    </swimlane>
+
+    <swimlane name="studioTeamManagers">
+        <assignment class="org.alfresco.repo.workflow.jbpm.AlfrescoAssignment">
+            <pooledactors>#{people.getGroup('GROUP_STUDIO_TEAM_MANAGERS')}</pooledactors>
+        </assignment>
+    </swimlane>
+
+    <swimlane name="worker">
+        <assignment class="org.alfresco.repo.workflow.jbpm.AlfrescoAssignment">
+            <actor>#{people.getPerson('worker')}</actor>
+        </assignment>
+    </swimlane>
+
+    <!-- Workflow starts -->
+    <start-state name="Start">
+        <task name="bmw:startTestProcessTask" swimlane="initiator"></task>
+        <event type="node-leave">
+            <action class="org.alfresco.repo.workflow.jbpm.AlfrescoJavaScript">
+                <script>
+                    executionContext.setVariable("bmc_campaignId", "Campaign 1");
+                    executionContext.setVariable("bmc_jobType", "Poster");
+                    executionContext.setVariable("bmw_jobStatus", "Start Up");
+                    executionContext.setVariable("bmw_workTypes", "[Concept]");
+                    executionContext.setVariable("bmw_workType", "Concept");
+                    executionContext.setVariable("bmw_assigneeApprover3Person", people.getPerson("admin").getNodeRef());
+                    executionContext.setVariable("bpm_assignee", people.getPerson("worker").getNodeRef());
+
+                    var procId = executionContext.processInstance.getId();
+                    executionContext.setVariable("procId", procId);
+                </script>
+            </action>
+        </event>
+        <transition to="W01_ProduceWork"></transition>
+    </start-state>
+
+    <task-node name="W01_ProduceWork">
+        <task name="bmw:W01_ProduceWorkTask" swimlane="worker">
+            <event type="task-create">
+                <script>
+                    <variable name="bmw_workType" access="read"/>
+                    <variable name="bpm_dueDate" access="read"/>
+                    <expression>
+                        System.out.println("Before taskInstance.description");
+                        taskInstance.description = "W01-Produce Work (" + bmw_workType + ")";
+                        System.out.println("After taskInstance.description");
+                        <!-- Need to set dueDate for task instance so it is displayed in task lists -->
+                        if (bpm_dueDate != null) taskInstance.dueDate = bpm_dueDate;
+                        System.out.println("After taskInstance.dueDate");
+                    </expression>
+                </script>
+            </event>
+        </task>
+        <transition to="W02_ValidateWork"></transition>
+    </task-node>
+
+    <task-node name="W02_ValidateWork">
+        <event type="node-enter">
+            <script>
+                <variable name="workApprovedByTeamMgr" access="write"/>
+                <expression>
+                    workApprovedByTeamMgr = false;
+                </expression>
+            </script>
+        </event>
+        <task name="bmw:W02_ValidateWorkTask" swimlane="studioTeamManagers">
+            <event type="task-create">
+                <script>
+                    <variable name="bmw_workType" access="read"/>
+                    <variable name="bpm_dueDate" access="read"/>
+                    <expression>
+                        taskInstance.description = "W02-Validate Completed Work (" + bmw_workType + ")";
+                        <!-- Need to set dueDate for task instance so it is displayed in task lists -->
+                        if (bpm_dueDate != null) taskInstance.dueDate = bpm_dueDate;
+                    </expression>
+                </script>
+            </event>
+        </task>
+        <transition to="WorkValid?" name="reject"></transition>
+        <transition to="WorkValid?" name="approve">
+            <script>
+                <variable name="workApprovedByTeamMgr" access="read,write"/>
+                <expression>
+                    workApprovedByTeamMgr = true;
+                </expression>
+            </script>
+        </transition>
+    </task-node>
+
+    <decision name="WorkValid?">
+        <description>
+            Note. The default transition "no" has to be first in this
+            decision node otherwise the condition will always evaluate to true.
+        </description>
+        <transition to="W04_AmendWork" name="no"></transition>
+        <transition to="W03_ValidateWork" name="yes">
+            <condition>#{workApprovedByTeamMgr == true}</condition>
+        </transition>
+    </decision>
+
+    <task-node name="W03_ValidateWork">
+        <event type="node-enter">
+            <script>
+                <variable name="workApprovedByJobOwner" access="write"/>
+                <expression>
+                    workApprovedByJobOwner = false;
+                </expression>
+            </script>
+        </event>
+        <task name="bmw:W03_ValidateWorkTask" swimlane="jobOwner">
+            <event type="task-create">
+                <script>
+                    <variable name="bmw_workType" access="read"/>
+                    <variable name="bpm_dueDate" access="read"/>
+                    <expression>
+                        taskInstance.description = "W03-Validate Completed Work (" + bmw_workType + ")";
+                        <!-- Need to set dueDate for task instance so it is displayed in task lists -->
+                        if (bpm_dueDate != null) taskInstance.dueDate = bpm_dueDate;
+                    </expression>
+                </script>
+            </event>
+        </task>
+        <transition to="WorkValid2?" name="reject"></transition>
+        <transition to="WorkValid2?" name="approve">
+            <script>
+                <variable name="workApprovedByJobOwner" access="read,write"/>
+                <expression>
+                    workApprovedByJobOwner = true;
+                </expression>
+            </script>
+        </transition>
+    </task-node>
+
+    <decision name="WorkValid2?">
+        <description>
+            Note. The default transition "no" has to be first in this
+            decision node otherwise the condition will always evaluate to true.
+        </description>
+        <transition to="W04_AmendWork" name="no"></transition>
+        <transition to="End" name="yes">
+            <condition>#{workApprovedByJobOwner == true}</condition>
+        </transition>
+    </decision>
+
+    <task-node name="W04_AmendWork">
+        <task name="bmw:W04_AmendWorkTask" swimlane="worker">
+            <event type="task-create">
+                <script>
+                    <variable name="bmw_workType" access="read"/>
+                    <variable name="bpm_dueDate" access="read"/>
+                    <expression>
+                        taskInstance.description = "W04-Amend Completed Work (" + bmw_workType + ")";
+                        <!-- Need to set dueDate for task instance so it is displayed in task lists -->
+                        if (bpm_dueDate != null) taskInstance.dueDate = bpm_dueDate;
+                    </expression>
+                </script>
+            </event>
+        </task>
+        <transition to="W02_ValidateWork"></transition>
+    </task-node>
+
+    <end-state name="End"></end-state>
+
+</process-definition>

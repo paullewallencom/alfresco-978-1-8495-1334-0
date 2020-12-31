@@ -1,0 +1,423 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="bmw:workflowModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+    <!-- Optional meta-data about the model -->
+    <description>Best Money Workflow Content Model</description>
+    <author>Martin Bergljung</author>
+    <version>1.0</version>
+
+    <!-- Imports are required to allow references to definitions in other models -->
+    <imports>
+        <!-- Import Alfresco Dictionary Definitions -->
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
+        <!-- Import Alfresco Content Domain Model Definitions -->
+        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
+        <!-- Import Alfresco jBPM Model Definitions -->
+        <import uri="http://www.alfresco.org/model/bpm/1.0" prefix="bpm"/>
+        <!-- Import Best Money document content model namespace -->
+        <import uri="http://www.bestmoney.com/model/content/1.0" prefix="bmc"/>
+    </imports>
+
+    <!-- Introduction of new Best Money Workflow content model namespace -->
+    <namespaces>
+        <namespace uri="http://www.bestmoney.com/model/workflow/1.0" prefix="bmw"/>
+    </namespaces>
+
+    <!-- ===============================================================================================================
+        Constraints
+        -->
+    <constraints>
+        <!--
+           A marketing job is in a certain status depending
+           on how much of the process has been completed.
+           (i.e. what phase it is in)
+        -->
+        <constraint name="bmw:jobStatus_options" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <value>Start Up</value>
+                    <value>Brief Definition</value>
+                    <value>Brief Sign-Off</value>
+                    <value>Production</value>
+                    <value>Production Sign-Off</value>
+                    <value>Live</value>
+                    <value>Not Live</value>
+                </list>
+            </parameter>
+        </constraint>
+
+        <!--
+            Sign-off categories for a Marketing Job
+            A job is signed-off in three different phases and
+            the sign-off category can be different for each phase
+            (i.e. brief approval and produced material approval)
+        -->
+        <constraint name="bmw:signOffCategory_options" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <!-- Director level -->
+                    <value>LEV1</value>
+                    <!-- Marketing Manager level -->
+                    <value>LEV2</value>
+                    <!-- Group Manager level -->
+                    <value>LEV3</value>
+                </list>
+            </parameter>
+        </constraint>
+
+        <!--
+        Work Types
+        The Job Owner selects work types for the Studio team.
+        -->
+        <constraint name="bmw:workType_options" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <value>Concept</value>
+                    <value>Design</value>
+                    <value>Copywrite</value>
+                </list>
+            </parameter>
+        </constraint>
+    </constraints>
+
+    <!-- ===============================================================================================================
+        Types
+        -->
+    <types>
+
+        <!-- Base Workflow Task Types -->
+
+        <type name="bmw:baseJobTask">
+            <description>
+                This is the base type for all Tasks in all workflows.
+            </description>
+            <parent>bpm:workflowTask</parent>
+            <properties>
+                <property name="bmw:jobFolderLink">
+                    <title>A link/URL to the job folder</title>
+                    <type>d:text</type>
+                </property>
+            </properties>
+            <overrides>
+                <property name="bpm:packageActionGroup">
+                    <default>add_package_item_actions</default>
+                </property>
+            </overrides>
+            <mandatory-aspects>
+                <aspect>bmc:job</aspect>
+                <aspect>bmw:job</aspect>
+                <aspect>bmw:assigneeApprover1Person</aspect>
+                <aspect>bmw:assigneeApprover2Person</aspect>
+                <aspect>bmw:assigneeApprover3Person</aspect>
+            </mandatory-aspects>
+        </type>
+
+        <type name="bmw:baseAssignJobTask">
+            <description>
+                This is the base type for all Tasks that are assigned to someone
+                (i.e. manual assignment and not via swimlane).
+            </description>
+            <parent>bmw:baseJobTask</parent>
+            <mandatory-aspects>
+                <aspect>bpm:assignee</aspect>
+            </mandatory-aspects>
+        </type>
+
+        <type name="bmw:baseAssignMultipleJobTask">
+            <description>
+                This is the base type for all Tasks that are assigned to
+                one or more people (i.e. manual assignment and not via swimlane).
+            </description>
+            <parent>bmw:baseJobTask</parent>
+            <mandatory-aspects>
+                <aspect>bpm:assignees</aspect>
+            </mandatory-aspects>
+        </type>
+
+        <!--   Task Types for the Work Process  -->
+
+        <type name="bmw:baseWorkTask">
+            <description>
+                This is the base type for all Generic Work Process Tasks.
+                As it is a generic work process we need to feed it with
+                specific work type and work due date etc.
+            </description>
+            <parent>bmw:baseAssignJobTask</parent>
+            <properties>
+                <property name="bmw:workType">
+                    <title>Current work type such as for example Concept</title>
+                    <type>d:text</type>
+                </property>
+            </properties>
+        </type>
+
+        <type name="bmw:W01_ProduceWorkTask">
+            <parent>bmw:baseWorkTask</parent>
+        </type>
+
+        <type name="bmw:W02_ValidateWorkTask">
+            <parent>bmw:baseWorkTask</parent>
+        </type>
+
+        <type name="bmw:W03_ValidateWorkTask">
+            <parent>bmw:baseWorkTask</parent>
+        </type>
+
+        <type name="bmw:W04_AmendWorkTask">
+            <parent>bmw:baseWorkTask</parent>
+            <overrides>
+                <property name="bpm:packageItemActionGroup">
+                    <default>edit_package_item_actions</default>
+                </property>
+            </overrides>
+        </type>
+
+        <!--   Task Types for the Studio Process  -->
+
+        <type name="bmw:P01_SetConceptPriorityAndAssignDesignerOrCopywriterTask">
+            <parent>bmw:baseAssignMultipleJobTask</parent>
+        </type>
+
+        <!--
+            The following two tasks go on in parallel so cannot use the bpm_assignee variable for both
+            as then they will have the same assignee (i.e. the one assigned first)
+            -->
+        <type name="bmw:P02_SetCopyPriorityAndAssignCopywriterTask">
+            <parent>bmw:baseJobTask</parent>
+            <mandatory-aspects>
+                <aspect>bmw:assigneeCopywriter</aspect>
+            </mandatory-aspects>
+        </type>
+
+        <type name="bmw:P03_SetDesignPriorityAndAssignDesignerTask">
+            <parent>bmw:baseJobTask</parent>
+            <mandatory-aspects>
+                <aspect>bmw:assigneeDesigner</aspect>
+            </mandatory-aspects>
+        </type>
+
+        <type name="bmw:P04_ApproveWorkAsCompleteAndOutOfStudioTask">
+            <parent>bmw:baseJobTask</parent>
+        </type>
+
+        <!--   Task Types for the Sign-off Process  -->
+
+        <type name="bmw:baseSignOffTask">
+            <parent>bmw:baseJobTask</parent>
+            <properties>
+                <property name="bmw:signOffPhase">
+                    <title>Current sign-off phase such as for example Brief</title>
+                    <type>d:text</type>
+                </property>
+            </properties>
+        </type>
+
+        <type name="bmw:SO01_Lev3SignOffTask">
+            <parent>bmw:baseSignOffTask</parent>
+        </type>
+
+        <type name="bmw:SO02_Lev2SignOffTask">
+            <parent>bmw:baseSignOffTask</parent>
+        </type>
+
+        <type name="bmw:SO03_Lev1SignOffTask">
+            <parent>bmw:baseSignOffTask</parent>
+        </type>
+
+        <type name="bmw:SO04_CheckSignoffCommentsTask">
+            <parent>bmw:baseSignOffTask</parent>
+        </type>
+
+        <!-- Task Types for the Main Job Process  -->
+
+        <type name="bmw:startJobProcessTask">
+            <parent>bpm:startTask</parent>
+        </type>
+
+        <type name="bmw:BD01_CreateMaterialBriefTask">
+            <parent>bmw:baseJobTask</parent>
+        </type>
+
+        <type name="bmw:BD02_UpdateMaterialBriefTask">
+            <parent>bmw:baseJobTask</parent>
+            <overrides>
+                <property name="bpm:packageItemActionGroup">
+                    <default>edit_package_item_actions</default>
+                </property>
+            </overrides>
+        </type>
+
+        <type name="bmw:P00_ValidateMaterialBriefTask">
+            <parent>bmw:baseJobTask</parent>
+        </type>
+
+        <!-- This task type is for when we test a sub-process -->
+
+        <type name="bmw:startTestProcessTask">
+            <parent>bpm:startTask</parent>
+        </type>
+    </types>
+
+    <!-- ===============================================================================================================
+        Aspects
+    -->
+    <aspects>
+
+        <!--
+            A marketing production job task has this aspect
+            It contains data needed during a marketing job workflow
+        -->
+        <aspect name="bmw:job">
+            <title>Marketing Campaign Job - Workflow data</title>
+            <properties>
+                <!-- Job status depicts how much of the job process that have been completed -->
+                <property name="bmw:jobStatus">
+                    <title>Job status</title>
+                    <type>d:text</type>
+                    <constraints>
+                        <constraint ref="bmw:jobStatus_options"/>
+                    </constraints>
+                </property>
+
+                <!-- Sign-off categories for different phases.
+                    Determines what level of sign-off that is needed for each phase.
+                    For example, director sign-off is needed (i.e. LEV1).
+                -->
+                <property name="bmw:briefSignOffCategory">
+                    <title>Brief Phase Sign-off Category</title>
+                    <type>d:text</type>
+                    <!-- <default>LEV3</default> cannot use defaults as they override the real value in a sub process property sheet-->
+                    <constraints>
+                        <constraint ref="bmw:signOffCategory_options"/>
+                    </constraints>
+                </property>
+                <property name="bmw:productionSignOffCategory">
+                    <title>Production Phase Sign-off Category</title>
+                    <type>d:text</type>
+                    <!-- <default>LEV3</default> cannot use defaults as they override the real value in a sub process property sheet-->
+                    <constraints>
+                        <constraint ref="bmw:signOffCategory_options"/>
+                    </constraints>
+                </property>
+
+                <!-- The email address for the external reviewer. Besides the produced material being signed off
+                     via the SignOff process, it will also be reviewed by an external reviewer. -->
+                <property name="bmw:externalReviewerEmail">
+                    <title>External Reviewer Email Address</title>
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+
+                <!-- Type of work to be carried out -->
+                <property name="bmw:workTypes">
+                    <title>Work Type</title>
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <multiple>true</multiple>
+                    <constraints>
+                        <constraint ref="bmw:workType_options"/>
+                    </constraints>
+                </property>
+
+                <!-- Work due dates -->
+                <property name="bmw:conceptWorkDueDate">
+                    <type>d:datetime</type>
+                </property>
+                <property name="bmw:designWorkDueDate">
+                    <type>d:datetime</type>
+                </property>
+                <property name="bmw:copywriteWorkDueDate">
+                    <type>d:datetime</type>
+                </property>
+            </properties>
+        </aspect>
+
+
+        <!--
+            Assignees / people who are going to complete tasks in the workflows
+            -->
+
+        <aspect name="bmw:assigneeApprover1Person">
+            <associations>
+                <association name="bmw:assigneeApprover1Person">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>false</many>
+                    </source>
+                    <target>
+                        <class>cm:person</class>
+                        <mandatory>false</mandatory>
+                        <many>false</many>
+                    </target>
+                </association>
+            </associations>
+        </aspect>
+
+        <aspect name="bmw:assigneeApprover2Person">
+            <associations>
+                <association name="bmw:assigneeApprover2Person">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>false</many>
+                    </source>
+                    <target>
+                        <class>cm:person</class>
+                        <mandatory>false</mandatory>
+                        <many>false</many>
+                    </target>
+                </association>
+            </associations>
+        </aspect>
+
+        <!-- The 3rd level approver is mandatory -->
+        <aspect name="bmw:assigneeApprover3Person">
+            <associations>
+                <association name="bmw:assigneeApprover3Person">
+                    <source>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
+                    </source>
+                    <target>
+                        <class>cm:person</class>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
+                    </target>
+                </association>
+            </associations>
+        </aspect>
+
+        <aspect name="bmw:assigneeCopywriter">
+            <associations>
+                <association name="bmw:assigneeCopywriter">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>false</many>
+                    </source>
+                    <target>
+                        <class>cm:person</class>
+                        <mandatory>false</mandatory>
+                        <many>false</many>
+                    </target>
+                </association>
+            </associations>
+        </aspect>
+
+        <aspect name="bmw:assigneeDesigner">
+            <associations>
+                <association name="bmw:assigneeDesigner">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>false</many>
+                    </source>
+                    <target>
+                        <class>cm:person</class>
+                        <mandatory>false</mandatory>
+                        <many>false</many>
+                    </target>
+                </association>
+            </associations>
+        </aspect>
+
+    </aspects>
+
+</model>

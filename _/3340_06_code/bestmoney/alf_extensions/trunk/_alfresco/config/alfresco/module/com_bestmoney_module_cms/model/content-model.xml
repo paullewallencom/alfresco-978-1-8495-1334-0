@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Definition of new Model -->
+<model name="bmc:contentModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+	<!-- Optional meta-data about the model -->
+	<description>Best Money Content Model</description>
+	<author>Martin Bergljung</author>
+	<version>1.0</version>
+
+	<!-- Imports are required to allow references to definitions in other models -->
+	<imports>
+		<!-- Import Alfresco Dictionary Definitions -->
+		<import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
+		<!-- Import Alfresco Content Domain Model Definitions -->
+		<import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
+		<import uri="http://www.alfresco.org/model/system/1.0" prefix="sys" />
+		<import uri="http://www.alfresco.org/model/datalist/1.0" prefix="dl" />
+	</imports>
+
+	<!-- Introduction of new namespaces defined by this model -->
+	<namespaces>
+		<namespace uri="http://www.bestmoney.com/model/content/1.0" prefix="bmc" />
+	</namespaces>
+
+
+    <!-- new content model types, aspects, constraints etc go here...-->
+	
+	  <types>
+        <!--
+              Temporary Best Money Document type, will be developed further in the Content Model Solutions chapter 9.
+              -->
+        <type name="bmc:document">
+            <title>Best Money Document</title>
+            <parent>cm:content</parent>
+            <properties>
+                <property name="bmc:department">
+                    <title>The Best Money Department that created the document</title>
+                    <type>d:text</type>
+                    <multiple>true</multiple>
+                </property>
+                <property name="bmc:language">
+                    <title>Language that the document is written in</title>
+                    <type>d:text</type>
+                </property>
+            </properties>
+        </type>
+
+    </types>
+
+    <!-- ===============================================================================================================
+		Best Money Aspects
+        -->
+
+    <aspects>
+
+        <aspect name="bmc:reviewable">
+            <title>Reviewable Folder</title>
+            <properties>
+                <property name="bmc:reviewPeriod">
+                    <title>The number of years until documents in this folder should be reviewed</title>
+                    <type>d:int</type>
+                    <mandatory>true</mandatory>
+                    <default>5</default>
+                </property>
+                <property name="bmc:includeSubFolders">
+                    <title>Should sub folders also be affected by this review period</title>
+                    <type>d:boolean</type>
+                    <mandatory>true</mandatory>
+                    <default>true</default>
+                </property>
+            </properties>
+        </aspect>
+    </aspects>
+
+
+</model>

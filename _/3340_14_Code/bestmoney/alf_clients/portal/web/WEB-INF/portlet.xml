@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+
+<portlet-app
+        version="2.0"
+        xmlns="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd http://java.sun.com/xml/ns/portlet/portlet-app_2_0.xsd">
+
+    <portlet>
+        <description>Hello World</description>
+        <portlet-name>HalloWorldPortlet</portlet-name>
+        <portlet-class>com.bestmoney.cms.web.ui.portlet.hello.HelloWorldPortlet</portlet-class>
+        <expiration-cache>0</expiration-cache>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+        </supports>
+        <supported-locale>en</supported-locale>
+        <portlet-info>
+            <title>HelloWorld</title>
+            <keywords>Hello, world, test</keywords>
+        </portlet-info>
+        <security-role-ref>
+            <role-name>administrator</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>guest</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>power-user</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>user</role-name>
+        </security-role-ref>
+    </portlet>
+
+    <portlet>
+        <description>Recently added documents presented in simple HTML table</description>
+        <portlet-name>RecentlyAddedDocumentsPortlet</portlet-name>
+        <portlet-class>com.bestmoney.cms.web.ui.portlet.rad.RecentlyAddedDocumentsPortlet</portlet-class>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>EDIT</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+        <portlet-info>
+            <title>Recently Added Documents</title>
+            <keywords>Recently, added, documents</keywords>
+        </portlet-info>
+        <security-role-ref>
+            <role-name>administrator</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>guest</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>power-user</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>user</role-name>
+        </security-role-ref>
+    </portlet>
+
+    <portlet>
+        <description>Recently added documents presented with GWT/GXT</description>
+        <portlet-name>RecentlyAddedDocumentsPortletGXT</portlet-name>
+        <portlet-class>com.bestmoney.cms.web.ui.portlet.rad.RecentlyAddedDocumentsPortletGXT</portlet-class>
+        <supports>
+            <mime-type>text/html</mime-type>
+            <portlet-mode>VIEW</portlet-mode>
+            <portlet-mode>EDIT</portlet-mode>
+            <portlet-mode>HELP</portlet-mode>
+        </supports>
+        <portlet-info>
+            <title>Recently Added Documents (GXT)</title>
+            <keywords>Recently, added, documents, GXT</keywords>
+        </portlet-info>
+        <security-role-ref>
+            <role-name>administrator</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>guest</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>power-user</role-name>
+        </security-role-ref>
+        <security-role-ref>
+            <role-name>user</role-name>
+        </security-role-ref>
+    </portlet>
+
+</portlet-app>

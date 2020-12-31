@@ -1,0 +1,73 @@
+        <alfresco-config>
+
+    <!--
+        Workflow property sheets for Studio Process
+        -->
+
+    <config evaluator="node-type" condition="bmw:P01_SetConceptPriorityAndAssignDesignerOrCopywriterTask" replace="true">
+        <property-sheet>
+            <separator name="sep-1" display-label-id="jobWorkflowHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmc:campaignId" display-label-id="campaignId" read-only="true"/>
+            <show-property name="bmc:product" display-label-id="product" read-only="true"/>
+            <show-property name="bmc:jobType" display-label-id="jobType" read-only="true"/>
+            <show-property name="bmw:jobStatus" display-label-id="jobStatus" read-only="true"/>
+            <show-property name="bmw:jobFolderLink" display-label-id="jobFolder" read-only="true" component-generator="CustomLinkGenerator"/>
+
+            <separator name="sep-2" display-label-id="priorityAndWorkerAssigneeHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bpm:priority" display-label-id="workPriority"/>
+            <show-property name="bmw:conceptWorkDueDate" display-label-id="conceptWorkDueDate" />
+            <show-association name="bpm:assignees" display-label-id="workers"/>
+        </property-sheet>
+    </config>
+
+    <config evaluator="node-type" condition="bmw:P02_SetCopyPriorityAndAssignCopywriterTask" replace="true">
+        <property-sheet>
+            <separator name="sep-1" display-label-id="jobWorkflowHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmc:campaignId" display-label-id="campaignId" read-only="true"/>
+            <show-property name="bmc:product" display-label-id="product" read-only="true"/>
+            <show-property name="bmc:jobType" display-label-id="jobType" read-only="true"/>
+            <show-property name="bmw:jobStatus" display-label-id="jobStatus" read-only="true"/>
+            <show-property name="bmw:jobFolderLink" display-label-id="jobFolder" read-only="true" component-generator="CustomLinkGenerator"/>
+
+            <separator name="sep-2" display-label-id="priorityAndWorkerAssigneeHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bpm:priority" display-label-id="workPriority"/>
+            <show-property name="bmw:copywriteWorkDueDate" display-label-id="copywriteWorkDueDate" />
+            <show-association name="bmw:assigneeCopywriter" display-label-id="worker"/>
+        </property-sheet>
+    </config>
+
+    <config evaluator="node-type" condition="bmw:P03_SetDesignPriorityAndAssignDesignerTask" replace="true">
+        <property-sheet>
+            <separator name="sep-1" display-label-id="jobWorkflowHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmc:campaignId" display-label-id="campaignId" read-only="true"/>
+            <show-property name="bmc:product" display-label-id="product" read-only="true"/>
+            <show-property name="bmc:jobType" display-label-id="jobType" read-only="true"/>
+            <show-property name="bmw:jobStatus" display-label-id="jobStatus" read-only="true"/>
+            <show-property name="bmw:jobFolderLink" display-label-id="jobFolder" read-only="true" component-generator="CustomLinkGenerator"/>
+
+            <separator name="sep-2" display-label-id="priorityAndWorkerAssigneeHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bpm:priority" display-label-id="workPriority"/>
+            <show-property name="bmw:designWorkDueDate" display-label-id="designWorkDueDate" />
+            <show-association name="bmw:assigneeDesigner" display-label-id="worker"/>
+        </property-sheet>
+    </config>
+
+    <config evaluator="node-type" condition="bmw:P04_ApproveWorkAsCompleteAndOutOfStudioTask" replace="true">
+        <property-sheet>
+            <separator name="sep-1" display-label-id="jobWorkflowHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmc:campaignId" display-label-id="campaignId" read-only="true"/>
+            <show-property name="bmc:product" display-label-id="product" read-only="true"/>
+            <show-property name="bmc:jobType" display-label-id="jobType" read-only="true"/>
+            <show-property name="bmw:jobStatus" display-label-id="jobStatus" read-only="true"/>
+            <show-property name="bmw:jobFolderLink" display-label-id="jobFolder" read-only="true" component-generator="CustomLinkGenerator"/>
+
+            <separator name="sep-2" display-label-id="workItemsHeader" component-generator="HeaderSeparatorGenerator"/>
+            <show-property name="bmw:workTypes" display-label-id="workTypes" read-only="true" />
+            <show-property name="bmw:conceptWorkDueDate" display-label-id="conceptWorkDueDate" read-only="true"/>
+            <show-property name="bmw:designWorkDueDate" display-label-id="designWorkDueDate" read-only="true"/>
+            <show-property name="bmw:copywriteWorkDueDate" display-label-id="copywriteWorkDueDate" read-only="true"/>
+            <show-property name="bmw:materialFolderLink" display-label-id="materialsFolder" read-only="true" component-generator="CustomLinkGenerator"/>
+        </property-sheet>
+    </config>
+
+</alfresco-config>

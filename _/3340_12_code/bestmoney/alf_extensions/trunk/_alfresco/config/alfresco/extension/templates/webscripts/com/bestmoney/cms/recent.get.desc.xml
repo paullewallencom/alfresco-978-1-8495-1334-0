@@ -1,0 +1,14 @@
+<webscript>
+    <shortname>Get recently added documents and folders</shortname>
+    <description>
+        <![CDATA[
+Returns all folders and documents that have been created or modified during the day.
+http://localhost:8080/alfresco/service/bestmoney/recent
+]]>
+    </description>
+    <url>/bestmoney/recent</url>
+    <authentication>guest</authentication>
+    <transaction allow="readonly"/>
+    <format default="json">argument</format>
+    <family>BestMoney</family>
+</webscript>
